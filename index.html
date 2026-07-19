@@ -1,13 +1,1997 @@
-<!doctype html>
-<html lang="en">
-  <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>My Google AI Studio App</title>
-  </head>
-  <body>
-    <div id="root"></div>
-    <script type="module" src="/src/main.tsx"></script>
-  </body>
-</html>
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>누구나 쉽게 한 끼를 때우는 AI 에이전트</title>
+  <!-- Tailwind CSS CDN -->
+  <script src="https://cdn.tailwindcss.com"></script>
+  <!-- Pretendard Korean Font CDN -->
+  <link rel="stylesheet" as="style" crossorigin href="https://cdn.jsdelivr.net/gh/orioncactus/pretendard@v1.3.9/dist/web/static/pretendard.css" />
+  <!-- Tailwind Config -->
+  <script>
+    tailwind.config = {
+      theme: {
+        extend: {
+          fontFamily: {
+            sans: ['Pretendard', 'Inter', 'ui-sans-serif', 'system-ui', '-apple-system', 'sans-serif'],
+          },
+          colors: {
+            yellow: {
+              50: '#FFFEF2',
+              100: '#FFF9D4',
+              200: '#FFF2A7',
+              300: '#FFE67B',
+              400: '#FFDE59',
+              500: '#FFD000',
+              600: '#E6B000',
+              700: '#B38200',
+              800: '#805900',
+              900: '#4D3300',
+              950: '#261700',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <style>
+    /* Smooth Scrollbar and Print Layout Styles */
+    ::-webkit-scrollbar {
+      width: 6px;
+      height: 6px;
+    }
+    ::-webkit-scrollbar-track {
+      background: #FFFEF2;
+    }
+    ::-webkit-scrollbar-thumb {
+      background: #FFE67B;
+      border-radius: 999px;
+    }
+    ::-webkit-scrollbar-thumb:hover {
+      background: #FFD000;
+    }
 
+    @media print {
+      body {
+        background: white !important;
+        color: black !important;
+      }
+      .no-print {
+        display: none !important;
+      }
+      .print-page {
+        display: block !important;
+        width: 100% !important;
+        border: none !important;
+        box-shadow: none !important;
+        margin: 0 !important;
+        padding: 0 !important;
+      }
+    }
+    
+    @keyframes pulse-slow {
+      0%, 100% { transform: scale(1); opacity: 1; }
+      50% { transform: scale(1.02); opacity: 0.95; }
+    }
+    .animate-pulse-slow {
+      animation: pulse-slow 3s infinite ease-in-out;
+    }
+  </style>
+</head>
+<body class="bg-yellow-50/40 text-slate-800 font-sans min-h-screen flex flex-col justify-between">
+
+  <!-- Sticky Header Header -->
+  <header class="bg-white border-b-2 border-yellow-200 px-4 md:px-8 py-4 sticky top-0 z-50 shadow-sm no-print">
+    <div class="max-w-7xl mx-auto flex flex-col lg:flex-row justify-between items-center gap-4">
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 bg-yellow-400 rounded-xl flex items-center justify-center shadow-sm">
+          <span class="text-xl">🍳</span>
+        </div>
+        <div>
+          <h1 class="text-lg md:text-xl font-black tracking-tight text-yellow-950 flex items-center gap-1.5">
+            누구나 쉽게 한 끼를 때우는 AI 에이전트
+          </h1>
+          <p class="text-[10px] text-yellow-700 font-extrabold uppercase tracking-wider">안심 영양 한 끼 &middot; 중학생 AI 윤리 캠프 결과물</p>
+        </div>
+      </div>
+
+      <!-- Navigation Tabs -->
+      <nav class="flex flex-wrap gap-1 bg-yellow-50/80 p-1 rounded-xl border border-yellow-100 max-w-full overflow-x-auto">
+        <button onclick="switchTab(0)" id="tab-0" class="tab-btn px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all bg-yellow-400 text-yellow-950 shadow-xs cursor-pointer">
+          🏠 홈 화면
+        </button>
+        <button onclick="switchTab(1)" id="tab-1" class="tab-btn px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all text-yellow-900 hover:bg-yellow-100/50 cursor-pointer">
+          🥗 식단 추천 및 예약
+        </button>
+        <button onclick="switchTab(2)" id="tab-2" class="tab-btn px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all text-yellow-900 hover:bg-yellow-100/50 cursor-pointer">
+          🛵 배달 식당 주문 창
+        </button>
+        <button onclick="switchTab(3)" id="tab-3" class="tab-btn px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all text-yellow-900 hover:bg-yellow-100/50 cursor-pointer">
+          📊 웹앱 설명 발표회
+        </button>
+      </nav>
+
+      <div class="flex items-center gap-2">
+        <span class="text-xs font-extrabold text-yellow-900 bg-yellow-100 px-3 py-1 rounded-full border border-yellow-200">
+          TEAM: AI 식사 수호대 🛡️
+        </span>
+      </div>
+    </div>
+  </header>
+
+  <!-- Main Workspace Layout -->
+  <main class="flex-1 w-full max-w-7xl mx-auto p-4 md:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+    
+    <!-- Left Side Status Widget (col-span-3) -->
+    <aside class="lg:col-span-3 space-y-4 no-print">
+      
+      <!-- Progress Indicator Card -->
+      <div class="bg-yellow-400 rounded-2xl p-5 shadow-sm text-yellow-950 relative overflow-hidden">
+        <div class="absolute top-0 right-0 w-20 h-20 bg-white/20 rounded-full blur-xl"></div>
+        <h3 class="text-[10px] font-black uppercase tracking-widest text-yellow-900 mb-1">나의 캠프 미션 완료도</h3>
+        <div class="flex items-baseline gap-1">
+          <span id="progress-percent" class="text-3xl font-black">25</span>
+          <span class="text-xs font-bold text-yellow-900">% 완료</span>
+        </div>
+        
+        <div class="w-full bg-yellow-600/20 h-2 rounded-full mt-3 overflow-hidden">
+          <div id="progress-bar" class="bg-yellow-950 h-full rounded-full transition-all duration-500" style="width: 25%"></div>
+        </div>
+        <p id="progress-desc" class="text-[10px] text-yellow-900/80 mt-2 leading-relaxed">
+          1단계 홈 화면 탐색 완료! 2단계 식단 추천에서 별명을 지어주고 건강 메뉴를 추천받으세요.
+        </p>
+      </div>
+
+      <!-- Live Ethics Filter Status Card -->
+      <div class="bg-white rounded-2xl p-5 border border-yellow-100 shadow-xs space-y-3.5">
+        <div class="flex items-center gap-2 border-b border-yellow-50 pb-2.5">
+          <i data-lucide="shield" class="w-4 h-4 text-yellow-500"></i>
+          <h3 class="font-extrabold text-xs text-yellow-950 uppercase tracking-wider">
+            실시간 AI 윤리 모니터
+          </h3>
+        </div>
+
+        <div class="space-y-3.5 text-[11px] leading-relaxed">
+          <div>
+            <span class="text-[9px] font-bold text-yellow-700 uppercase block tracking-wider">가상 별명 데이터</span>
+            <div id="status-nickname" class="font-extrabold text-yellow-950 mt-1 bg-yellow-50/40 p-2.5 rounded-lg border border-yellow-100/50">
+              ⚠️ 별명 미설정 (2단계)
+            </div>
+          </div>
+
+          <div>
+            <span class="text-[9px] font-bold text-yellow-700 uppercase block tracking-wider">1. 개인정보 배제 필터</span>
+            <div id="status-privacy" class="text-slate-600 mt-1 bg-yellow-50/40 p-2.5 rounded-lg border border-yellow-100/50">
+              <span class="text-red-500 font-bold">❌ 별명 규칙 대기 중</span>
+            </div>
+          </div>
+
+          <div>
+            <span class="text-[9px] font-bold text-yellow-700 uppercase block tracking-wider">2. 재고 정직성 필터</span>
+            <div id="status-transparency" class="text-slate-600 mt-1 bg-yellow-50/40 p-2.5 rounded-lg border border-yellow-100/50">
+              <span class="text-slate-400">품절 시 정직 알림 대기</span>
+            </div>
+          </div>
+
+          <div>
+            <span class="text-[9px] font-bold text-yellow-700 uppercase block tracking-wider">3. 사람 확인 안전핀</span>
+            <div id="status-human" class="text-slate-600 mt-1 bg-yellow-50/40 p-2.5 rounded-lg border border-yellow-100/50">
+              <span class="text-slate-400">최종 확인 장치 대기</span>
+            </div>
+          </div>
+        </div>
+      </div>
+    </aside>
+
+    <!-- Right Workspace Section (col-span-9) -->
+    <div class="lg:col-span-9">
+
+      <!-- ==================== SCREEN 1: HOME ==================== -->
+      <section id="screen-0" class="screen-view space-y-8">
+        <!-- Hero Header -->
+        <div class="text-center space-y-4">
+          <div class="inline-flex items-center gap-2 px-4 py-2 bg-yellow-100 border border-yellow-200 text-yellow-950 rounded-full text-sm font-semibold shadow-2xs">
+            <i data-lucide="sparkles" class="w-4 h-4 text-yellow-600 animate-pulse"></i>
+            <span>가정 인공지능 프로젝트</span>
+          </div>
+          <h1 class="text-3xl md:text-5xl font-black text-yellow-950 tracking-tight leading-tight">
+            누구나 쉽게 한 끼를 때우는 <br class="md:hidden" />
+            <span class="text-yellow-600 relative">AI 에이전트🍳</span>
+          </h1>
+          <p class="text-sm md:text-base text-slate-600 max-w-2xl mx-auto leading-relaxed">
+            매일 "오늘 뭐 먹지?" 고민하고 귀찮아하는 청소년과 가족들을 위한 최첨단 식단 추천 비서입니다! <br />
+            영양소 균형을 척척 설계하고, 개인정보 보호와 안전을 철저히 지키며 배달까지 매칭해줘요.
+          </p>
+        </div>
+
+        <!-- Big Campaign Banner -->
+        <div class="bg-white border-2 border-yellow-200 rounded-3xl p-6 md:p-8 shadow-sm relative overflow-hidden">
+          <div class="absolute top-0 right-0 w-32 h-32 bg-yellow-100 rounded-full blur-3xl opacity-50 -mr-10 -mt-10"></div>
+          
+          <h2 class="text-xl font-black text-yellow-950 mb-4 flex items-center gap-2">
+            🎯 우리의 AI 에이전트 미션 맵
+          </h2>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs mb-6">
+            <div class="bg-yellow-50/30 p-4 rounded-xl border border-yellow-100">
+              <span class="text-3xl">🥗</span>
+              <h3 class="font-extrabold text-yellow-950 mt-1.5 text-sm">1. 식단 추천 & 예약</h3>
+              <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                가상 '별명'만 사용하여 탄/단/지/비 영양소를 고려한 하루 세 끼 식단표를 이중 예약 없이 안전 예약해요.
+              </p>
+            </div>
+            <div class="bg-yellow-50/30 p-4 rounded-xl border border-yellow-100">
+              <span class="text-3xl">🛵</span>
+              <h3 class="font-extrabold text-yellow-950 mt-1.5 text-sm">2. 안심 배달 주문</h3>
+              <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                진짜 집주소나 이름 없이 암호화된 가상 안심번호와 별명만으로 완벽한 모의 배달 주문을 테스트해요.
+              </p>
+            </div>
+            <div class="bg-yellow-50/30 p-4 rounded-xl border border-yellow-100">
+              <span class="text-3xl">📊</span>
+              <h3 class="font-extrabold text-yellow-950 mt-1.5 text-sm">3. 캠프 최종 발표회</h3>
+              <p class="text-[11px] text-slate-500 mt-1 leading-relaxed">
+                내가 입력한 테스트 결과와 윤리 다짐이 한눈에 보이는 멋진 발표 슬라이드를 즉석에서 자동 발행해요.
+              </p>
+            </div>
+          </div>
+
+          <div class="text-center">
+            <button onclick="switchTab(1)" class="inline-flex items-center gap-2 bg-yellow-400 hover:bg-yellow-500 text-yellow-950 font-black px-8 py-3.5 rounded-xl transition-all shadow-md hover:scale-[1.03] active:scale-95 cursor-pointer text-sm animate-pulse-slow">
+              식단 추천 & 에이전트 깨우기 <i data-lucide="arrow-right" class="w-4 h-4"></i>
+            </button>
+          </div>
+        </div>
+
+        <!-- Fun AI Ethics Dictionary -->
+        <div class="space-y-4">
+          <div class="flex items-center gap-2 text-yellow-950 font-extrabold text-lg px-1">
+            <i data-lucide="book-open" class="w-5 h-5 text-yellow-600"></i>
+            <span>쉽고 재밌는 AI 윤리 3가지 약속 📖</span>
+          </div>
+          
+          <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs">
+            <div class="bg-white border border-yellow-100 rounded-2xl p-5 shadow-2xs hover:shadow-xs transition-all">
+              <div class="flex items-center gap-2 text-yellow-950 font-extrabold mb-2.5">
+                <i data-lucide="lock" class="w-4 h-4 text-emerald-600"></i>
+                <span>🔒 개인정보 보호 (Privacy)</span>
+              </div>
+              <p class="text-slate-500 leading-relaxed text-[11px]">
+                실제 이름, 생년월일, 전화번호, 도로명 주소를 절대로 서버에 넘기거나 수집하지 않아요! 귀여운 <strong>가상 별명</strong>만 사용해 해킹 사고를 원천 방지합니다.
+              </p>
+            </div>
+
+            <div class="bg-white border border-yellow-100 rounded-2xl p-5 shadow-2xs hover:shadow-xs transition-all">
+              <div class="flex items-center gap-2 text-yellow-950 font-extrabold mb-2.5">
+                <i data-lucide="eye" class="w-4 h-4 text-blue-600"></i>
+                <span>📢 투명성 (Transparency)</span>
+              </div>
+              <p class="text-slate-500 leading-relaxed text-[11px]">
+                준비된 음식이 다 떨어졌을 때 억지로 예약 승인을 속이지 않아요. 품절 상태를 솔직하고 정직하게 공개하고, 차례대로 공평하게 대기자로 올려주는 정직함이 필요해요.
+              </p>
+            </div>
+
+            <div class="bg-white border border-yellow-100 rounded-2xl p-5 shadow-2xs hover:shadow-xs transition-all">
+              <div class="flex items-center gap-2 text-yellow-950 font-extrabold mb-2.5">
+                <i data-lucide="user-check" class="w-4 h-4 text-purple-600"></i>
+                <span>🙋‍♂️ 사람 확인 (Human-in-the-Loop)</span>
+              </div>
+              <p class="text-slate-500 leading-relaxed text-[11px]">
+                인공지능 비서가 가족들 몰래 멋대로 카드를 긁거나 주문해 버리면 안 되겠죠? AI는 오직 제안만 하고, 결제나 주문은 꼭 <strong>사람이 최종 버튼을 눌러 승인</strong>해요.
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ==================== SCREEN 2: DIET SELECTION & RECOMMENDATION ==================== -->
+      <section id="screen-1" class="screen-view hidden space-y-6">
+        <!-- Top Info Banner -->
+        <div class="bg-yellow-100/60 border-2 border-yellow-200 rounded-2xl p-5 flex items-start gap-4">
+          <div class="p-3 bg-yellow-400 text-yellow-950 rounded-xl">
+            <i data-lucide="utensils" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-extrabold text-yellow-950">
+              🥗 2단계. 식단 선호도 선택 및 하루 영양 식단 추천 예약 창
+            </h2>
+            <p class="text-xs text-yellow-900 mt-1 leading-relaxed">
+              가정에서 평소에 즐겨 먹는 음식을 선택하고 안심 가상 별명을 적어주세요. <br />
+              AI 에이전트가 완벽한 영양소(탄/단/지/비) 비율을 계산해 하루 삼끼의 건강 맞춤형 식단을 실시간으로 추천하고 예약을 진행합니다.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Left Column: inputs (col-span-7) -->
+          <div class="lg:col-span-7 space-y-4">
+            <div class="bg-white rounded-2xl border border-yellow-100 p-5 md:p-6 shadow-sm space-y-4">
+              <div class="flex justify-between items-center border-b border-yellow-50 pb-3">
+                <h3 class="font-extrabold text-sm text-yellow-950 flex items-center gap-2">
+                  📂 에이전트 매칭 설정
+                </h3>
+                <span class="text-[10px] bg-yellow-400 text-yellow-950 font-bold px-2.5 py-0.5 rounded-full">
+                  영양 가이드: 100% 안심 설계
+                </span>
+              </div>
+
+              <!-- Nickname input with instant real-time validation -->
+              <div class="space-y-1.5">
+                <label class="text-xs font-bold text-yellow-900 flex items-center gap-1">
+                  <i data-lucide="user" class="w-3.5 h-3.5 text-yellow-600"></i>
+                  우리 가족용 안전 별명 (닉네임)
+                </label>
+                <input
+                  type="text"
+                  id="nickname-input"
+                  oninput="handleNicknameInput(this.value)"
+                  placeholder="예: 초코쿠키네, 냠냠패밀리 (실명/전화/주소 금지)"
+                  class="w-full text-xs p-3 bg-yellow-50/20 border border-yellow-100 rounded-xl focus:outline-none focus:ring-2 focus:ring-yellow-400 text-yellow-950 font-bold"
+                >
+                <p class="text-[10px] text-slate-400">실제 이름, 주소, 연락처, 생년월일은 보안 규칙 위반입니다. 오직 '별명'만 사용할 수 있습니다.</p>
+              </div>
+
+              <!-- Instant privacy violation warning card -->
+              <div id="privacy-warning" class="hidden bg-red-50 border border-red-200 text-red-800 rounded-xl p-3.5 text-xs leading-relaxed flex items-start gap-2.5">
+                <i data-lucide="alert-triangle" class="w-5 h-5 text-red-600 shrink-0 mt-0.5"></i>
+                <div>
+                  <span class="font-bold">⚠️ 개인정보 유출 주의보 작동!</span>
+                  <p id="privacy-warning-text" class="text-[11px] mt-1 text-red-700"></p>
+                </div>
+              </div>
+
+              <!-- Meal Settings Configurator -->
+              <div class="space-y-3.5">
+                <div class="flex justify-between items-center gap-2">
+                  <label class="text-xs font-bold text-yellow-900 flex items-center gap-1">
+                    😋 하루 식단 아침, 점심, 저녁 메뉴 직접 설정하기
+                  </label>
+                  <button type="button" onclick="randomizeAllMeals()" class="bg-yellow-100 hover:bg-yellow-200 text-yellow-950 text-xs font-black px-3.5 py-1.5 rounded-xl flex items-center gap-1 transition-all cursor-pointer select-none shadow-xs">
+                    🎲 랜덤 자동 추천
+                  </button>
+                </div>
+                
+                <!-- Tab selector inside form -->
+                <div class="grid grid-cols-3 gap-1 bg-yellow-50/60 p-1 rounded-xl border border-yellow-100">
+                  <button type="button" id="meal-config-tab-breakfast" onclick="switchMealConfigTab('breakfast')" class="py-2 rounded-lg font-black text-[11px] flex items-center justify-center gap-1 transition-all bg-yellow-400 text-yellow-950 shadow-3xs cursor-pointer">
+                    🌅 아침 식사
+                  </button>
+                  <button type="button" id="meal-config-tab-lunch" onclick="switchMealConfigTab('lunch')" class="py-2 rounded-lg font-bold text-[11px] flex items-center justify-center gap-1 transition-all text-slate-500 hover:text-slate-800 cursor-pointer">
+                    ☀️ 점심 식사
+                  </button>
+                  <button type="button" id="meal-config-tab-dinner" onclick="switchMealConfigTab('dinner')" class="py-2 rounded-lg font-bold text-[11px] flex items-center justify-center gap-1 transition-all text-slate-500 hover:text-slate-800 cursor-pointer">
+                    🌙 저녁 식사
+                  </button>
+                </div>
+
+                <!-- Live Summary Row of currently selected meals -->
+                <div class="grid grid-cols-3 gap-2 text-center text-[10px] bg-slate-50/50 p-2 border border-slate-100 rounded-xl">
+                  <div onclick="switchMealConfigTab('breakfast')" class="p-1.5 rounded-lg border bg-white shadow-4xs cursor-pointer transition-all border-yellow-300" id="meal-summary-breakfast">
+                    <span class="text-slate-400 block text-[9px] font-bold">🌅 아침</span>
+                    <span class="font-extrabold text-yellow-950 block truncate mt-0.5" id="meal-summary-breakfast-text">🥣 시리얼</span>
+                  </div>
+                  <div onclick="switchMealConfigTab('lunch')" class="p-1.5 rounded-lg border bg-white shadow-4xs cursor-pointer transition-all border-slate-100" id="meal-summary-lunch">
+                    <span class="text-slate-400 block text-[9px] font-bold">☀️ 점심</span>
+                    <span class="font-extrabold text-yellow-950 block truncate mt-0.5" id="meal-summary-lunch-text">🥘 돼지 국밥</span>
+                  </div>
+                  <div onclick="switchMealConfigTab('dinner')" class="p-1.5 rounded-lg border bg-white shadow-4xs cursor-pointer transition-all border-slate-100" id="meal-summary-dinner">
+                    <span class="text-slate-400 block text-[9px] font-bold">🌙 저녁</span>
+                    <span class="font-extrabold text-yellow-950 block truncate mt-0.5" id="meal-summary-dinner-text">🥩 삼겹살</span>
+                  </div>
+                </div>
+
+                <!-- Food Grid for currently selected meal tab -->
+                <div class="space-y-1.5">
+                  <p class="text-[10px] font-bold text-yellow-800 flex items-center gap-1">
+                    👉 <span id="current-meal-tab-label" class="text-yellow-600 font-extrabold">아침</span> 메뉴로 선택할 음식을 골라주세요:
+                  </p>
+                  <div class="grid grid-cols-2 gap-2 text-xs" id="food-selection-grid">
+                    <!-- Dynamic render via JS -->
+                  </div>
+                </div>
+              </div>
+
+              <!-- Household select -->
+              <div class="space-y-1.5">
+                <label class="text-xs font-bold text-yellow-900 flex items-center gap-1">
+                  👥 하루 식단 추천 대상 가구 형태
+                </label>
+                <div class="grid grid-cols-3 gap-2">
+                  <button type="button" onclick="setHouseholdSize(1)" id="hsize-1" class="hsize-btn text-xs py-2.5 rounded-xl font-bold border transition-all bg-yellow-400 border-yellow-400 text-yellow-950">
+                    혼자 때우는 1인
+                  </button>
+                  <button type="button" onclick="setHouseholdSize(2)" id="hsize-2" class="hsize-btn text-xs py-2.5 rounded-xl font-bold border transition-all bg-white border-slate-200 text-slate-700">
+                    커플/가구 2인
+                  </button>
+                  <button type="button" onclick="setHouseholdSize(4)" id="hsize-4" class="hsize-btn text-xs py-2.5 rounded-xl font-bold border transition-all bg-white border-slate-200 text-slate-700">
+                    가족 든든 4인
+                  </button>
+                </div>
+              </div>
+
+              <!-- Action buttons -->
+              <div class="pt-2 flex gap-2">
+                <button
+                  type="button"
+                  id="recommend-btn"
+                  onclick="triggerDietRecommendation()"
+                  disabled
+                  class="flex-1 inline-flex items-center justify-center gap-2 bg-yellow-400 hover:bg-yellow-500 disabled:bg-slate-100 disabled:text-slate-400 text-yellow-950 font-black py-3.5 px-4 rounded-xl transition-all shadow-sm cursor-pointer text-xs"
+                >
+                  하루 맞춤형 영양식단
+                </button>
+                <button
+                  type="button"
+                  onclick="resetDietForm()"
+                  class="bg-slate-50 hover:bg-slate-100 border border-slate-200 text-slate-700 font-bold px-4 rounded-xl text-xs"
+                >
+                  초기화
+                </button>
+              </div>
+            </div>
+
+            <!-- Quiz Hint for kids -->
+            <div class="bg-yellow-50/40 border border-yellow-100 rounded-xl p-4 text-[11px] text-slate-500 leading-relaxed space-y-1">
+              <h4 class="font-bold text-yellow-950">💡 AI 윤리 탐구 퀴즈:</h4>
+              <p>&bull; <strong>개인정보를 안 쓰는 이유:</strong> 해커가 만약 우리의 AI 에이전트 시스템을 털어가도, 가상의 별명 '말랑카우가족'만 있으므로 진짜 주소와 실명, 휴대전화 번호는 완벽하게 해킹 피해로부터 지켜져요!</p>
+            </div>
+          </div>
+
+          <!-- Right Column: AI Live monitor and results (col-span-5) -->
+          <div class="lg:col-span-5 flex flex-col justify-between space-y-4 font-mono text-xs">
+            <!-- Active AI Agent Monitor Panel -->
+            <div class="bg-slate-900 text-slate-100 rounded-2xl p-5 border border-slate-800 flex-1 flex flex-col justify-between shadow-md relative overflow-hidden min-h-[400px]">
+              <div class="absolute top-0 right-0 p-3 text-[9px] text-slate-500 font-bold">
+                AI_DIET_ENGINE V3.1
+              </div>
+
+              <div class="space-y-4">
+                <div class="flex items-center gap-2 border-b border-slate-800 pb-3">
+                  <div class="w-2 h-2 rounded-full bg-yellow-400 animate-ping"></div>
+                  <span class="text-[10px] font-bold text-slate-400">윤리 필터 및 실시간 영양 조율 창</span>
+                </div>
+
+                <!-- Simulation Output Box -->
+                <div id="ai-monitor-output" class="space-y-3 leading-relaxed max-h-[420px] overflow-y-auto text-slate-300 text-[11px]">
+                  <div class="text-slate-500 italic py-16 text-center font-sans">
+                    왼쪽 양식을 안전하게 채우고 추천을 실행하면, AI 에이전트가 설계한 가이드라인에 따른 식단 분석 및 영양 밸런스 결과가 여기에 출력됩니다.
+                  </div>
+                </div>
+              </div>
+
+              <!-- Dynamic Interactive Panel inside Black Screen -->
+              <div id="ai-monitor-action" class="mt-4 hidden">
+                <!-- Javascript will inject Waitlist request, Human Confirm buttons, etc. -->
+              </div>
+            </div>
+
+            <!-- Lock Stamp -->
+            <div id="diet-stamp-container" class="hidden bg-emerald-50 border border-emerald-200 rounded-xl p-3.5 flex items-start gap-2">
+              <i data-lucide="check-circle" class="w-5 h-5 text-emerald-600 shrink-0 mt-0.5"></i>
+              <div class="font-sans text-[11px] text-emerald-950">
+                <span class="font-bold">✔️ 3단계 배달 자동 연동 활성화!</span>
+                <p class="text-[10px] text-slate-500 mt-0.5">사람이 최종 예약 식단을 검토하여 승인 완료했습니다. '3. 배달 식당 주문 창' 탭이 안전하게 언락되었습니다!</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ==================== SCREEN 3: DELIVERY RESTAURANT ORDER ==================== -->
+      <section id="screen-2" class="screen-view hidden space-y-6">
+        <!-- Top Info Banner -->
+        <div class="bg-yellow-100/60 border-2 border-yellow-200 rounded-2xl p-5 flex items-start gap-4">
+          <div class="p-3 bg-yellow-400 text-yellow-950 rounded-xl">
+            <i data-lucide="shopping-bag" class="w-6 h-6"></i>
+          </div>
+          <div>
+            <h2 class="text-lg font-extrabold text-yellow-950">
+              🛵 3단계. 추천 식단 관련 가상 배달 앱 매칭 및 안전 주문 창
+            </h2>
+            <p class="text-xs text-yellow-900 mt-1 leading-relaxed">
+              추천 및 저장이 확정된 한 끼 메뉴가 어떤 배달 플랫폼(배민, 요기요, 쿠팡이츠 등)에 매칭되는지 스마트폰 모의 화면으로 확인하세요! <br />
+              진짜 연락처 대신 <strong>일회용 가상 안심번호</strong>가, 우리집 주소 대신 <strong>안심 택배 기지</strong> 주소가 매칭되어 외부 해킹과 배달 정보 노출을 꽁꽁 숨깁니다.
+            </p>
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+          <!-- Left Controller Panel (col-span-5) -->
+          <div class="lg:col-span-5 space-y-4">
+            
+            <!-- Linkage Status -->
+            <div class="bg-white rounded-2xl border border-yellow-100 p-5 shadow-xs space-y-3.5">
+              <div class="flex items-center gap-2 border-b border-yellow-50 pb-2.5">
+                <i data-lucide="radio" class="w-4 h-4 text-yellow-600"></i>
+                <h3 class="font-extrabold text-sm text-yellow-950">배달 연동 허브 데이터</h3>
+              </div>
+
+              <div id="delivery-linkage-status">
+                <!-- Dynamic injected state of booking -->
+              </div>
+            </div>
+
+            <!-- Quick Sandbox Selector -->
+            <div class="bg-white rounded-2xl border border-yellow-100 p-5 shadow-xs space-y-3">
+              <h4 class="font-extrabold text-xs text-yellow-950">🍱 다양한 모의 배달 앱 수동 매칭해 보기</h4>
+              <p class="text-[10px] text-slate-500 leading-relaxed">
+                확정된 식단이 없어도, 다양한 요리 종류별 배달 앱 모의 화면을 직접 불러와 윤리 시스템을 마음껏 탐색할 수 있어요!
+              </p>
+              <div class="grid grid-cols-2 gap-2 text-xs" id="sandbox-delivery-list">
+                <!-- Sandbox lists -->
+              </div>
+            </div>
+
+            <!-- Tech info box -->
+            <div class="bg-emerald-50/50 border border-emerald-100 rounded-xl p-4 text-[11px] text-emerald-950 space-y-2 leading-relaxed">
+              <p class="font-bold flex items-center gap-1">
+                🛡️ 배달 연동 시 2대 안심 암호화 기법:
+              </p>
+              <p>
+                &bull; <strong>1. 일회용 안심번호:</strong> 라이더 아저씨와 통화 시 실제 번호가 아닌 <code>050-XXXX-XXXX</code> 번호로 우회 연결되어 유출되지 않아요.
+              </p>
+              <p>
+                &bull; <strong>2. 주소 가상화 기지:</strong> 배달 기점 주소를 집이 아닌 아파트 무인 택배함이나 동네 안심 락커로 연결하여 상세 가택 침입 위협을 사전에 차단합니다.
+              </p>
+            </div>
+          </div>
+
+          <!-- Right: Interactive Smartphone simulator mockup (col-span-7) -->
+          <div class="lg:col-span-7 flex justify-center">
+            
+            <!-- Smartphone frame container -->
+            <div class="w-full max-w-[350px] bg-slate-900 rounded-[45px] p-4 shadow-xl border-4 border-slate-800 relative">
+              <!-- Speaker & Camera notch -->
+              <div class="absolute top-5 left-1/2 transform -translate-x-1/2 w-28 h-5 bg-slate-900 rounded-full z-20 flex items-center justify-center gap-1">
+                <div class="w-2.5 h-2.5 rounded-full bg-slate-800"></div>
+                <div class="w-8 h-1 bg-slate-800 rounded-full"></div>
+              </div>
+
+              <!-- Inner display screen -->
+              <div class="bg-white rounded-[32px] overflow-hidden min-h-[550px] flex flex-col justify-between relative shadow-inner z-10 font-sans">
+                <!-- Phone Status bar -->
+                <div class="bg-slate-50 h-7 px-5 pt-1.5 text-[10px] text-slate-500 flex justify-between items-center select-none">
+                  <span class="font-bold">12:00 PM</span>
+                  <div class="flex items-center gap-1">
+                    <span>📶 5G</span>
+                    <span>🔋 100%</span>
+                  </div>
+                </div>
+
+                <!-- Delivery App Screen Container -->
+                <div id="phone-app-content" class="flex-1 flex flex-col justify-between overflow-y-auto">
+                  <!-- JS will dynamically inject the styled App content based on the selected food -->
+                </div>
+
+                <!-- Phone Bottom Bar -->
+                <div class="bg-slate-50 py-2.5 text-center shrink-0">
+                  <div class="w-20 h-1 bg-slate-300 rounded-full mx-auto"></div>
+                </div>
+              </div>
+            </div>
+
+          </div>
+        </div>
+      </section>
+
+
+      <!-- ==================== SCREEN 4: PRESENTATION SLIDES ==================== -->
+      <section id="screen-3" class="screen-view hidden space-y-6">
+        <!-- Top Info Banner -->
+        <div class="bg-yellow-100/60 border-2 border-yellow-200 rounded-2xl p-5 flex items-start justify-between gap-4 no-print">
+          <div class="flex items-start gap-3">
+            <div class="p-3 bg-yellow-400 text-yellow-950 rounded-xl">
+              <i data-lucide="presentation" class="w-6 h-6"></i>
+            </div>
+            <div>
+              <h2 class="text-lg font-extrabold text-yellow-950">
+                📊 4단계. AI 윤리 캠프 결과물 웹앱 설명 발표회 (피치덱 슬라이드)
+              </h2>
+              <p class="text-xs text-yellow-900 mt-1 leading-relaxed">
+                캠프 최종 심사위원들과 친구들 앞에서 내가 직접 안전하게 구축한 "AI 식단 에이전트"를 뽐내며 발표하는 자료입니다! <br />
+                인쇄하거나 PDF로 저장해 실제 인쇄물 보고서로 제출할 수도 있습니다.
+              </p>
+            </div>
+          </div>
+          
+          <div class="flex gap-1.5 shrink-0">
+            <button onclick="window.print()" class="bg-yellow-400 hover:bg-yellow-500 text-yellow-950 font-extrabold px-3.5 py-2 rounded-xl text-xs flex items-center gap-1 cursor-pointer transition-all shadow-2xs">
+              <i data-lucide="printer" class="w-3.5 h-3.5"></i> PDF 저장 / 인쇄
+            </button>
+          </div>
+        </div>
+
+        <!-- Presentation Slides Core Card -->
+        <div class="bg-white border-3 border-yellow-200 rounded-3xl p-6 md:p-8 shadow-xs relative overflow-hidden print:border-0 print:shadow-none print-page" id="presentation-slide-card">
+          <!-- Compliance Verified Stamp -->
+          <div class="absolute top-6 right-6 md:top-8 md:right-8 border-4 border-emerald-500 text-emerald-600 font-black px-4 py-1.5 rounded-xl rotate-12 transform select-none flex items-center gap-1.5 bg-white/95 z-20 shadow-xs">
+            <i data-lucide="shield-check" class="w-4 h-4 text-emerald-500 animate-pulse"></i>
+            <div class="text-left font-sans">
+              <div class="text-[8px] leading-none text-slate-400 font-mono font-bold">CAMPUS 2026</div>
+              <div class="tracking-wider text-xs font-black text-emerald-700">윤리 검증 완료</div>
+            </div>
+          </div>
+
+          <!-- Active Slide Frame -->
+          <div class="min-h-[420px] flex flex-col justify-between space-y-6" id="slide-frame">
+            <!-- JS will inject Slide contents based on activeSlideIndex -->
+          </div>
+
+          <!-- Slide Controls (Only on Web preview, not on printed paper) -->
+          <div class="flex items-center justify-between border-t border-slate-100 pt-5 no-print">
+            <div class="flex gap-1">
+              <button onclick="prevSlide()" class="p-2 border border-slate-200 hover:bg-slate-50 text-slate-700 rounded-lg text-xs font-bold cursor-pointer transition-all">
+                ◀ 이전 슬라이드
+              </button>
+              <button onclick="nextSlide()" class="p-2 bg-yellow-400 hover:bg-yellow-500 text-yellow-950 rounded-lg text-xs font-bold cursor-pointer transition-all">
+                다음 슬라이드 ▶
+              </button>
+            </div>
+
+            <!-- Slide Dots -->
+            <div class="flex gap-1.5" id="slide-dots">
+              <!-- Dots injection -->
+            </div>
+
+            <div class="text-[10px] text-slate-400 font-mono uppercase">
+              Page <span id="current-slide-page">1</span> / 5
+            </div>
+          </div>
+        </div>
+
+        <!-- Reset Button and script helper -->
+        <div class="bg-yellow-50 border border-yellow-200 rounded-2xl p-4 flex flex-col md:flex-row items-center justify-between gap-4 no-print">
+          <div class="flex items-start gap-2 text-xs">
+            <i data-lucide="sparkles" class="w-5 h-5 text-yellow-500 shrink-0 mt-0.5"></i>
+            <p class="text-slate-600 leading-relaxed">
+              🎉 <strong>윤리 캠프 완수!</strong> 우리가 만든 AI 에이전트는 사용자의 영양 균형과 안전한 개인정보 규범을 모두 해결했습니다. <br />
+              처음부터 다시 연습하거나 다른 별명으로 테스트해보려면 전체 초기화를 진행할 수 있습니다.
+            </p>
+          </div>
+          <button onclick="confirmResetAll()" class="inline-flex items-center gap-1 bg-yellow-100 hover:bg-yellow-200 text-yellow-950 font-bold px-4 py-2 rounded-xl text-xs cursor-pointer transition-colors shrink-0 border border-yellow-200">
+            🔄 실습 처음부터 다시하기
+          </button>
+        </div>
+      </section>
+
+    </div>
+  </main>
+
+  <!-- Reset Confirmation Modal -->
+  <div id="reset-confirm-modal" class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-slate-900/60 backdrop-blur-xs hidden no-print">
+    <div class="bg-white rounded-3xl border-3 border-yellow-200 max-w-md w-full p-6 md:p-8 shadow-2xl space-y-5">
+      <div class="flex items-center gap-3.5 text-yellow-700">
+        <div class="w-12 h-12 rounded-2xl bg-yellow-50 border border-yellow-200 flex items-center justify-center text-2xl shrink-0">
+          ⚠️
+        </div>
+        <div>
+          <h3 class="font-extrabold text-base text-yellow-950">실습 데이터 전체 초기화</h3>
+          <p class="text-xs text-yellow-700 font-bold">AI 윤리 캠프 활동을 다시 준비합니다</p>
+        </div>
+      </div>
+
+      <p class="text-xs text-slate-600 leading-relaxed">
+        지금까지 저장한 <strong>하루 추천 식단 이력</strong>, <strong>개인정보 위반 로그</strong> 및 <strong>발표회 수령 정보</strong>가 모두 초기화됩니다. 처음부터 다시 개시하시겠습니까?
+      </p>
+
+      <div class="flex gap-2.5 pt-1">
+        <button onclick="closeResetModal()" class="flex-1 py-3 px-4 bg-slate-100 hover:bg-slate-200 text-slate-700 font-bold rounded-xl text-xs transition-colors cursor-pointer">
+          돌아가기
+        </button>
+        <button onclick="executeResetAll()" class="flex-1 py-3 px-4 bg-yellow-400 hover:bg-yellow-500 text-yellow-950 font-extrabold rounded-xl text-xs transition-colors shadow-sm cursor-pointer">
+          🔄 예, 다시 시작합니다
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Footer -->
+  <footer class="bg-white border-t border-yellow-100 px-4 md:px-8 py-3.5 mt-8 flex flex-col md:flex-row justify-between items-center text-[10px] font-medium text-slate-400 gap-2 no-print">
+    <div class="flex flex-wrap gap-4 uppercase tracking-wider justify-center">
+      <span>AI Ethics Studio Beta</span>
+      <span>● Offline Sandbox Mode</span>
+      <span class="text-yellow-600 font-extrabold">● Safe Agent Protocol: ACTIVE</span>
+    </div>
+    <div class="flex items-center gap-2">
+      <span>AI Ethics Camp 2026</span>
+      <span class="text-slate-200">|</span>
+      <span class="text-yellow-600 font-bold">#누구나_쉽게_한_끼를_때우는_AI_에이전트</span>
+    </div>
+  </footer>
+
+  <!-- Icons Loader -->
+  <script>
+    // Global Application State managed in vanilla variables
+    const state = {
+      activeTab: 0,
+      nickname: '',
+      familySize: 1, // default
+      currentMealConfigTab: 'breakfast', // 'breakfast', 'lunch', 'dinner'
+      selectedBreakfastFood: 'cereal', // default cereal
+      selectedLunchFood: 'pork_soup', // default pork_soup
+      selectedDinnerFood: 'samgyeopsal', // default samgyeopsal
+      privacyViolationCount: 0,
+      isDietRecommended: false,
+      isDietConfirmed: false,
+      recommendedDiet: null,
+      waitlisted: false,
+      orderStep: 'details', // 'details', 'ordering', 'completed'
+      activeSlideIndex: 0,
+      studentReflection: '',
+    };
+
+    // Constant foods dataset with nutritional details and initial portions
+    const FOODS_DB = {
+      'cereal': { name: '시리얼', portionsLeft: 3, maxPortions: 3, emoji: '🥣', desc: '우유와 과일로 아침을 깨우는 영양 비타민 한 끼', category: '간편 아침', app: '쿠팡 로켓프레시', color: '#0073E6', store: '로켓프레시 파주 마트 물류센터', price: '14,800원', carbo: 85, protein: 45, fat: 35, vitamin: 90, comment: '아침 필수 식이섬유와 가벼운 에너지를 충전합니다.' },
+      'pork_soup': { name: '돼지 국밥', portionsLeft: 4, maxPortions: 4, emoji: '🥘', desc: '따끈하고 진한 사골 육수로 든든하고 편안한 전통 한식', category: '든든 점심', app: '배달의민족', color: '#2AC1BC', store: '가마솥 명품 돼지국밥 본점', price: '12,000원', carbo: 70, protein: 95, fat: 65, vitamin: 30, comment: '풍부한 고단백질과 든든한 아미노산이 듬뿍 담겨 있습니다.' },
+      'samgyeopsal': { name: '삼겹살 구이', portionsLeft: 2, maxPortions: 2, emoji: '🥩', desc: '지글지글 구운 삼겹살과 신선한 쌈채소 파티 세트', category: '가족 저녁', app: '요기요', color: '#FA0050', store: '불타는 직화 삼겹살전문 삼겹시대', price: '19,500원', carbo: 40, protein: 98, fat: 85, vitamin: 60, comment: '지친 저녁 단백질과 칼슘, 아연을 골고루 영양 보충합니다.' },
+      'sushi': { name: '모듬 초밥', portionsLeft: 3, maxPortions: 3, emoji: '🍣', desc: '신선한 활어회와 알맞은 밥알로 만든 명품 일식 식단', category: '특선 한 끼', app: '쿠팡이츠', color: '#00A5E2', store: '가도스시 프리미엄 일식', price: '20,000원', carbo: 80, protein: 75, fat: 25, vitamin: 50, comment: '불포화지방산(오메가3)이 함유되어 두뇌 건강에 이롭습니다.' },
+      'maratang': { name: '매콤 마라탕', portionsLeft: 4, maxPortions: 4, emoji: '🍜', desc: '청소년 선호 1위, 마라 육수에 갖가지 고기/야채를 담은 별미', category: '트렌디 식단', app: '배달의민족', color: '#2AC1BC', store: '신쿵푸마라탕 본사직영점', price: '16,000원', carbo: 60, protein: 70, fat: 55, vitamin: 45, comment: '알싸한 캡사이신이 기분 좋은 자극을 주며 야채 섬유질을 보강합니다.' },
+      'burger': { name: '수제 햄버거', portionsLeft: 5, maxPortions: 5, emoji: '🍔', desc: '치즈와 소고기 패티, 토마토가 듬뿍 들은 완벽 영양 밸런스 밀', category: '패스트 캐주얼', app: '쿠팡이츠', color: '#00A5E2', store: '뉴욕 프레시 치즈버거 팩토리', price: '15,000원', carbo: 75, protein: 80, fat: 70, vitamin: 55, comment: '신선한 야채와 육즙 가득한 패티로 간편하게 오대양 영양을 맞춥니다.' },
+      'bibimbap': { name: '건강 비빔밥', portionsLeft: 4, maxPortions: 4, emoji: '🥗', desc: '오색 나물과 참기름, 고소한 육회 또는 고기 토핑 비빔밥', category: '전통 웰빙', app: '요기요', color: '#FA0050', store: '정성 가득 고궁 가마솥 비빔밥', price: '13,000원', carbo: 90, protein: 65, fat: 30, vitamin: 95, comment: '식이섬유와 무기질, 오색 비타민이 자연 그대로 어우러집니다.' },
+      'tonkatsu': { name: '바삭 돈가스', portionsLeft: 3, maxPortions: 3, emoji: '🍛', desc: '바삭하게 튀겨낸 등심 돈가스와 달콤 소스 콤보', category: '실패 없는 한 끼', app: '배달의민족', color: '#2AC1BC', store: '바삭마루 돈가스 & 카레 하우스', price: '14,000원', carbo: 75, protein: 85, fat: 60, vitamin: 40, comment: '청소년 성장기 핵심 철분과 고소한 탄수화물이 조화롭습니다.' },
+    };
+
+    // Initialize application
+    window.addEventListener('DOMContentLoaded', () => {
+      switchMealConfigTab('breakfast');
+      updateMealSummaryUI();
+      renderSlide();
+      updateProgress();
+      lucide.createIcons();
+    });
+
+    // Switch the active meal configuration tab (Breakfast, Lunch, Dinner)
+    function switchMealConfigTab(tab) {
+      state.currentMealConfigTab = tab;
+      
+      const tabs = ['breakfast', 'lunch', 'dinner'];
+      const labels = { 'breakfast': '아침', 'lunch': '점심', 'dinner': '저녁' };
+      
+      tabs.forEach(t => {
+        const btn = document.getElementById(`meal-config-tab-${t}`);
+        const summaryCard = document.getElementById(`meal-summary-${t}`);
+        if (btn && summaryCard) {
+          if (t === tab) {
+            btn.className = 'py-2 rounded-lg font-black text-[11px] flex items-center justify-center gap-1 transition-all bg-yellow-400 text-yellow-950 shadow-3xs cursor-pointer';
+            summaryCard.className = 'p-1.5 rounded-lg border bg-white shadow-4xs cursor-pointer transition-all border-yellow-300 ring-2 ring-yellow-400/20';
+          } else {
+            btn.className = 'py-2 rounded-lg font-bold text-[11px] flex items-center justify-center gap-1 transition-all text-slate-500 hover:text-slate-800 cursor-pointer';
+            summaryCard.className = 'p-1.5 rounded-lg border bg-white shadow-4xs cursor-pointer transition-all border-slate-100';
+          }
+        }
+      });
+      
+      const labelElem = document.getElementById('current-meal-tab-label');
+      if (labelElem) {
+        labelElem.innerText = labels[tab];
+      }
+      renderFoodSelectionGrid();
+    }
+
+    // Update the visual representation of current selections in the summary row
+    function updateMealSummaryUI() {
+      const bFood = FOODS_DB[state.selectedBreakfastFood];
+      const lFood = FOODS_DB[state.selectedLunchFood];
+      const dFood = FOODS_DB[state.selectedDinnerFood];
+      
+      const bElem = document.getElementById('meal-summary-breakfast-text');
+      const lElem = document.getElementById('meal-summary-lunch-text');
+      const dElem = document.getElementById('meal-summary-dinner-text');
+      
+      if (bElem && bFood) bElem.innerText = `${bFood.emoji} ${bFood.name}`;
+      if (lElem && lFood) lElem.innerText = `${lFood.emoji} ${lFood.name}`;
+      if (dElem && dFood) dElem.innerText = `${dFood.emoji} ${dFood.name}`;
+    }
+
+    // Render the Food Selection grid items inside Screen 2
+    function renderFoodSelectionGrid() {
+      const grid = document.getElementById('food-selection-grid');
+      if (!grid) return;
+      grid.innerHTML = '';
+      
+      let activeFoodName = '';
+      if (state.currentMealConfigTab === 'breakfast') {
+        activeFoodName = FOODS_DB[state.selectedBreakfastFood]?.name || '';
+      } else if (state.currentMealConfigTab === 'lunch') {
+        activeFoodName = FOODS_DB[state.selectedLunchFood]?.name || '';
+      } else if (state.currentMealConfigTab === 'dinner') {
+        activeFoodName = FOODS_DB[state.selectedDinnerFood]?.name || '';
+      }
+      
+      Object.keys(FOODS_DB).forEach((key) => {
+        const item = FOODS_DB[key];
+        const isOutOfStock = item.portionsLeft <= 0;
+        const isSelected = activeFoodName === item.name;
+        
+        let buttonClass = 'text-left p-3.5 rounded-xl border transition-all relative flex items-center gap-3 ';
+        let stockBadge = '';
+        
+        if (isOutOfStock) {
+          buttonClass += 'bg-slate-50 border-slate-200 opacity-60 cursor-not-allowed';
+          stockBadge = `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-red-100 text-red-700">품절(정직)</span>`;
+        } else if (isSelected) {
+          buttonClass += 'bg-yellow-50 border-2 border-yellow-400 shadow-2xs scale-[1.02]';
+          stockBadge = `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-yellow-100 text-yellow-800">선택됨</span>`;
+        } else {
+          buttonClass += 'bg-white border-slate-200 hover:border-yellow-300 hover:bg-yellow-50/10 cursor-pointer';
+          stockBadge = `<span class="text-[9px] font-bold px-1.5 py-0.5 rounded bg-emerald-100 text-emerald-800">잔여: ${item.portionsLeft}세트</span>`;
+        }
+
+        const foodHtml = `
+          <button type="button" onclick="selectFood('${key}')" class="${buttonClass}">
+            <span class="text-3xl p-1 bg-yellow-50/60 rounded-lg">${item.emoji}</span>
+            <div class="min-w-0 flex-1">
+              <div class="flex justify-between items-center gap-1">
+                <span class="font-extrabold text-xs text-yellow-950 truncate">${item.name}</span>
+                ${stockBadge}
+              </div>
+              <p class="text-[10px] text-slate-400 truncate mt-0.5">${item.desc}</p>
+            </div>
+          </button>
+        `;
+        grid.insertAdjacentHTML('beforeend', foodHtml);
+      });
+    }
+
+    // Tab Navigation controller
+    function switchTab(index) {
+      // Manage views
+      const views = document.querySelectorAll('.screen-view');
+      views.forEach((v, idx) => {
+        if (idx === index) {
+          v.classList.remove('hidden');
+        } else {
+          v.classList.add('hidden');
+        }
+      });
+
+      // Manage tab headers
+      const btns = document.querySelectorAll('.tab-btn');
+      btns.forEach((b, idx) => {
+        if (idx === index) {
+          b.className = 'tab-btn px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all bg-yellow-400 text-yellow-950 shadow-xs cursor-pointer';
+        } else {
+          b.className = 'tab-btn px-3.5 py-1.5 text-xs font-bold rounded-lg transition-all text-yellow-900 hover:bg-yellow-100/50 cursor-pointer';
+        }
+      });
+
+      state.activeTab = index;
+      updateProgress();
+      
+      // Special actions on tab loading
+      if (index === 2) {
+        renderDeliveryHub();
+      }
+      if (index === 3) {
+        renderSlide();
+      }
+    }
+
+    // Set Household size inside Screen 2
+    function setHouseholdSize(size) {
+      state.familySize = size;
+      const buttons = document.querySelectorAll('.hsize-btn');
+      buttons.forEach(btn => {
+        btn.className = 'hsize-btn text-xs py-2.5 rounded-xl font-bold border transition-all bg-white border-slate-200 text-slate-700';
+      });
+      document.getElementById(`hsize-${size}`).className = 'hsize-btn text-xs py-2.5 rounded-xl font-bold border transition-all bg-yellow-400 border-yellow-400 text-yellow-950';
+    }
+
+    // Select Food Preference inside Screen 2 based on current meal config tab
+    function selectFood(key) {
+      if (state.currentMealConfigTab === 'breakfast') {
+        state.selectedBreakfastFood = key;
+      } else if (state.currentMealConfigTab === 'lunch') {
+        state.selectedLunchFood = key;
+      } else if (state.currentMealConfigTab === 'dinner') {
+        state.selectedDinnerFood = key;
+      }
+      
+      updateMealSummaryUI();
+      renderFoodSelectionGrid();
+      validateRecommendButton();
+    }
+
+    // Randomize all 3 meals (Breakfast, Lunch, Dinner)
+    function randomizeAllMeals() {
+      const keys = Object.keys(FOODS_DB);
+      if (keys.length === 0) return;
+      
+      const breakfastOptions = ['cereal', 'bibimbap', 'burger', 'tonkatsu'];
+      const lunchOptions = ['pork_soup', 'maratang', 'burger', 'tonkatsu', 'bibimbap'];
+      const dinnerOptions = ['samgyeopsal', 'sushi', 'maratang', 'tonkatsu', 'bibimbap'];
+
+      // Pick randomly with fallback to any key if not exists
+      const randomB = breakfastOptions[Math.floor(Math.random() * breakfastOptions.length)] || keys[0];
+      const randomL = lunchOptions[Math.floor(Math.random() * lunchOptions.length)] || keys[0];
+      const randomD = dinnerOptions[Math.floor(Math.random() * dinnerOptions.length)] || keys[0];
+
+      state.selectedBreakfastFood = randomB;
+      state.selectedLunchFood = randomL;
+      state.selectedDinnerFood = randomD;
+
+      updateMealSummaryUI();
+      renderFoodSelectionGrid();
+      validateRecommendButton();
+
+      // Show temporary positive feedback inside the AI Ethics monitor panel
+      const outputBox = document.getElementById('ai-monitor-output');
+      if (outputBox) {
+        outputBox.innerHTML = `
+          <p class="text-yellow-400 font-bold">&gt; [🎲 RANDOM_DIET_SET] 랜덤 자동 추천 셋팅 완료</p>
+          <p class="text-[10px] text-slate-400">&bull; 에이전트 브리핑: 탄/단/지 비율 조화를 고려해 3끼를 자동 페어링했습니다.</p>
+          
+          <div class="space-y-2 mt-2 font-sans text-xs bg-slate-800/80 p-3.5 rounded-xl border border-slate-700">
+            <span class="text-[9px] bg-yellow-400 text-yellow-950 font-black px-1.5 py-0.5 rounded">🎲 추천된 맞춤 조합</span>
+            <div class="space-y-1.5 mt-2 font-semibold text-slate-100">
+              <p>🌅 <strong>아침:</strong> ${FOODS_DB[randomB].emoji} ${FOODS_DB[randomB].name}</p>
+              <p>☀️ <strong>점심:</strong> ${FOODS_DB[randomL].emoji} ${FOODS_DB[randomL].name}</p>
+              <p>🌙 <strong>저녁:</strong> ${FOODS_DB[randomD].emoji} ${FOODS_DB[randomD].name}</p>
+            </div>
+            <p class="text-[10px] text-slate-400 mt-2 leading-relaxed">
+              위의 식단이 마음에 드신다면 아래의 <strong class="text-yellow-300">"하루 맞춤형 영양식단"</strong> 버튼을 클릭하여 최종 AI 분석 및 예약 확인 단계로 진행해 주세요!
+            </p>
+          </div>
+        `;
+      }
+      
+      const actionBox = document.getElementById('ai-monitor-action');
+      if (actionBox) {
+        actionBox.classList.add('hidden');
+      }
+    }
+
+    // Validate if Recommendation Button should be active
+    function validateRecommendButton() {
+      const btn = document.getElementById('recommend-btn');
+      if (!btn) return;
+      const hasNick = state.nickname.trim().length > 0;
+      const hasBreakfast = state.selectedBreakfastFood.length > 0;
+      const hasLunch = state.selectedLunchFood.length > 0;
+      const hasDinner = state.selectedDinnerFood.length > 0;
+      const privacyViolation = checkPrivacyViolation(state.nickname);
+      
+      if (hasNick && hasBreakfast && hasLunch && hasDinner && !privacyViolation) {
+        btn.removeAttribute('disabled');
+      } else {
+        btn.setAttribute('disabled', 'true');
+      }
+    }
+
+    // Personal Info real-time validation to protect youth
+    function checkPrivacyViolation(val) {
+      const phoneRegex = /(010|02|031|051)-\d{3,4}-\d{4}|\d{9,11}/;
+      const addressKeywords = ['동', '구', '시', '대로', '아파트', '빌라', '번지', '길', '마을', '주택', '호'];
+      const hasAddress = addressKeywords.some(keyword => val.includes(keyword)) && val.length > 3;
+      const birthdateRegex = /\d{6}|\d{4}년|\d{2}년|\d{2}\/\d{2}/;
+      
+      // Format checks for Korean names
+      const isKoreanName = /^[가-힣]{2,4}$/.test(val) && !['가족', '패밀리', '초코', '냠냠', '별명', '쿠키', '민트', '대기', '윤리', '캠프'].some(k => val.includes(k));
+
+      if (phoneRegex.test(val)) {
+        return '연락처(휴대폰 번호) 패턴이 발견되었습니다! 안전 조건에 따라 식단 예약에 연락처 정보는 절대 포함될 수 없습니다.';
+      }
+      if (hasAddress) {
+        return '상세 주소(동, 구, 아파트명 등) 키워드가 발견되었습니다! 안전 조건에 따라 실제 집 주소는 절대 저장하지 않아요.';
+      }
+      if (birthdateRegex.test(val)) {
+        return '생년월일(또는 6자리 주민번호) 패턴이 감지되었습니다! 안전 조건에 따라 생년월일은 입력받지 않습니다.';
+      }
+      if (isKoreanName && val.length >= 3) {
+        return '실제 성명(이름) 형식과 너무 유사합니다! 캠프 규정 상 이름 노출은 금지되어 있으니 가상의 별명(예: 귀염댕이가족)으로 수정해 주세요.';
+      }
+      return null;
+    }
+
+    // Handles real-time input typing inside Nickname text-box
+    function handleNicknameInput(val) {
+      state.nickname = val;
+      const warningElement = document.getElementById('privacy-warning');
+      const textElement = document.getElementById('privacy-warning-text');
+      
+      const violationMsg = checkPrivacyViolation(val);
+      if (violationMsg) {
+        warningElement.classList.remove('hidden');
+        textElement.innerText = violationMsg;
+        state.privacyViolationCount++;
+        updateLiveEthicsMonitor('privacy', false, '빨간색 경고등 작동 중! 개인정보 차단 완료');
+      } else {
+        warningElement.classList.add('hidden');
+        if (val.trim().length > 0) {
+          updateLiveEthicsMonitor('privacy', true, '통과 (별명 사용 완료 ✔️)');
+        } else {
+          updateLiveEthicsMonitor('privacy', false, '별명 규칙 대기 중');
+        }
+      }
+      
+      const nickMonitor = document.getElementById('status-nickname');
+      nickMonitor.innerText = val.trim().length > 0 ? `✔️ ${val}` : '⚠️ 별명 미설정 (2단계)';
+      validateRecommendButton();
+    }
+
+    // Update the real-time AI ethics mini monitors on the left side menu
+    function updateLiveEthicsMonitor(type, isPassed, text) {
+      const element = document.getElementById(`status-${type}`);
+      if (isPassed) {
+        element.innerHTML = `<span class="text-emerald-700 font-bold">✔️ ${text}</span>`;
+      } else {
+        element.innerHTML = `<span class="text-red-500 font-bold">❌ ${text}</span>`;
+      }
+    }
+
+    // Trigger AI Diet Recommendation action inside Screen 2
+    function triggerDietRecommendation() {
+      const outputBox = document.getElementById('ai-monitor-output');
+      const actionBox = document.getElementById('ai-monitor-action');
+      
+      // Set loading
+      outputBox.innerHTML = `
+        <div class="space-y-3 py-10 text-center font-sans">
+          <div class="inline-block w-8 h-8 border-4 border-yellow-400 border-t-transparent rounded-full animate-spin"></div>
+          <p class="text-xs text-yellow-400 font-bold animate-pulse">
+            설계 가이드라인 필터를 가동하여 평소 식습관과 영양소 비율을 심사 중입니다...
+          </p>
+        </div>
+      `;
+      actionBox.classList.add('hidden');
+      state.isDietRecommended = false;
+      state.isDietConfirmed = false;
+
+      // Simulate AI processing
+      setTimeout(() => {
+        const bKey = state.selectedBreakfastFood;
+        const lKey = state.selectedLunchFood;
+        const dKey = state.selectedDinnerFood;
+
+        const bFood = FOODS_DB[bKey];
+        const lFood = FOODS_DB[lKey];
+        const dFood = FOODS_DB[dKey];
+
+        // 1. Transparency check (Stock check) for all three foods
+        let outOfStockKey = null;
+        if (bFood.portionsLeft <= 0) outOfStockKey = bKey;
+        else if (lFood.portionsLeft <= 0) outOfStockKey = lKey;
+        else if (dFood.portionsLeft <= 0) outOfStockKey = dKey;
+
+        if (outOfStockKey) {
+          const outOfStockFood = FOODS_DB[outOfStockKey];
+          outputBox.innerHTML = `
+            <p class="text-yellow-400 font-extrabold">&gt; [AI_TRANSPARENCY] 품절 감지 시스템 작동</p>
+            <p class="text-slate-400">&bull; 에이전트 분석: 선택한 "${outOfStockFood.name}" 메뉴는 현재 물량이 전량 품절되었습니다.</p>
+            
+            <div class="p-3 bg-red-950/40 border border-red-500/30 rounded-xl font-sans text-slate-100 mt-2.5">
+              <span class="font-extrabold text-red-400">❌ 추천 지연 알림 (재고 정직성 위반 차단):</span>
+              <p class="text-xs leading-relaxed mt-1 text-slate-200">
+                AI 윤리 원칙 2번에 따라 품절인데도 억지로 "예약 성공"으로 조작하지 않으며, 거짓 예약을 완전히 차단합니다. 
+                품절 사실을 투명하게 공시하고 안전하게 대기자 접수를 제안합니다.
+              </p>
+            </div>
+          `;
+          
+          actionBox.innerHTML = `
+            <div class="p-3.5 bg-blue-500/10 border border-blue-400/50 rounded-xl space-y-2.5 font-sans">
+              <div class="text-[11px] text-blue-300 font-bold flex items-center gap-1">
+                <i data-lucide="info" class="w-3.5 h-3.5"></i> 투명한 대기자 명단에 접수하시겠습니까?
+              </div>
+              <button type="button" onclick="registerWaitlist('${outOfStockKey}')" class="w-full bg-blue-500 hover:bg-blue-600 text-white font-bold py-2 px-3 rounded-lg text-xs cursor-pointer transition-colors">
+                📝 예, 정직 대기 명단에 공평하게 등록하겠습니다
+              </button>
+            </div>
+          `;
+          actionBox.classList.remove('hidden');
+          updateLiveEthicsMonitor('transparency', false, '정직한 품절 알림 작동!');
+          lucide.createIcons();
+          return;
+        }
+
+        // 2. Compute balanced meal diet using chosen foods
+        const dietPlan = {
+          breakfast: { name: bFood.name, emoji: bFood.emoji, carbo: bFood.carbo, protein: bFood.protein, fat: bFood.fat, vitamin: bFood.vitamin },
+          lunch: { name: lFood.name, emoji: lFood.emoji, carbo: lFood.carbo, protein: lFood.protein, fat: lFood.fat, vitamin: lFood.vitamin },
+          dinner: { name: dFood.name, emoji: dFood.emoji, carbo: dFood.carbo, protein: dFood.protein, fat: dFood.fat, vitamin: dFood.vitamin }
+        };
+        
+        state.recommendedDiet = dietPlan;
+        state.isDietRecommended = true;
+        updateLiveEthicsMonitor('transparency', true, '품절 유무 정직 공시 완료');
+
+        outputBox.innerHTML = `
+          <p class="text-yellow-400 font-bold">&gt; [AI_RECOMMEND_OK] 하루 안심 영양 식단 설계 완료</p>
+          <p class="text-[10px] text-slate-400">&bull; 수혜 가정: 별명 [${state.nickname}] / 규모: ${state.familySize}인 기준</p>
+          
+          <div class="space-y-2.5 mt-2.5 font-sans">
+            <!-- Breakfast Card -->
+            <div class="bg-slate-800 p-3 rounded-xl border border-slate-700/60">
+              <div class="flex justify-between items-center text-slate-200">
+                <span class="text-xs font-black">🌅 아침 (08:00)</span>
+                <span class="text-[10px] text-yellow-500/80 font-bold bg-yellow-500/10 px-1.5 py-0.5 rounded">안심 매칭 요리</span>
+              </div>
+              <div class="flex items-center gap-2 mt-1.5">
+                <span class="text-2xl">${dietPlan.breakfast.emoji}</span>
+                <span class="font-extrabold text-white text-xs">${dietPlan.breakfast.name}</span>
+              </div>
+              <div class="grid grid-cols-4 gap-1.5 mt-2 text-[8px] text-slate-300">
+                <div>탄수화물: <div class="w-full bg-slate-700 h-1 rounded-full"><div class="bg-yellow-400 h-full rounded-full" style="width: ${dietPlan.breakfast.carbo}%"></div></div></div>
+                <div>단백질: <div class="w-full bg-slate-700 h-1 rounded-full"><div class="bg-emerald-400 h-full rounded-full" style="width: ${dietPlan.breakfast.protein}%"></div></div></div>
+                <div>지방: <div class="w-full bg-slate-700 h-1 rounded-full"><div class="bg-blue-400 h-full rounded-full" style="width: ${dietPlan.breakfast.fat}%"></div></div></div>
+                <div>비타민: <div class="w-full bg-slate-700 h-1 rounded-full"><div class="bg-purple-400 h-full rounded-full" style="width: ${dietPlan.breakfast.vitamin}%"></div></div></div>
+              </div>
+            </div>
+
+            <!-- Lunch Card -->
+            <div class="bg-slate-800 p-3 rounded-xl border border-slate-700/60">
+              <div class="flex justify-between items-center text-slate-200">
+                <span class="text-xs font-black">☀️ 점심 (12:30)</span>
+                <span class="text-[10px] text-yellow-500/80 font-bold bg-yellow-500/10 px-1.5 py-0.5 rounded">안심 매칭 요리</span>
+              </div>
+              <div class="flex items-center gap-2 mt-1.5">
+                <span class="text-2xl">${dietPlan.lunch.emoji}</span>
+                <span class="font-extrabold text-white text-xs">${dietPlan.lunch.name}</span>
+              </div>
+              <div class="grid grid-cols-4 gap-1.5 mt-2 text-[8px] text-slate-300">
+                <div>탄수화물: <div class="w-full bg-slate-700 h-1 rounded-full"><div class="bg-yellow-400 h-full rounded-full" style="width: ${dietPlan.lunch.carbo}%"></div></div></div>
+                <div>단백질: <div class="w-full bg-slate-700 h-1 rounded-full"><div class="bg-emerald-400 h-full rounded-full" style="width: ${dietPlan.lunch.protein}%"></div></div></div>
+                <div>지방: <div class="w-full bg-slate-700 h-1 rounded-full"><div class="bg-blue-400 h-full rounded-full" style="width: ${dietPlan.lunch.fat}%"></div></div></div>
+                <div>비타민: <div class="w-full bg-slate-700 h-1 rounded-full"><div class="bg-purple-400 h-full rounded-full" style="width: ${dietPlan.lunch.vitamin}%"></div></div></div>
+              </div>
+            </div>
+
+            <!-- Dinner Card -->
+            <div class="bg-slate-800 p-3 rounded-xl border border-slate-700/60 border-yellow-500/30">
+              <div class="flex justify-between items-center text-yellow-400">
+                <span class="text-xs font-black">🌙 저녁 (18:30)</span>
+                <span class="text-[10px] text-yellow-500/80 font-bold bg-yellow-500/10 px-1.5 py-0.5 rounded">안심 매칭 요리</span>
+              </div>
+              <div class="flex items-center gap-2 mt-1.5">
+                <span class="text-2xl">${dietPlan.dinner.emoji}</span>
+                <span class="font-extrabold text-white text-xs">${dietPlan.dinner.name}</span>
+              </div>
+              <div class="grid grid-cols-4 gap-1.5 mt-2 text-[8px] text-slate-300">
+                <div>탄수화물: <div class="w-full bg-slate-700 h-1 rounded-full"><div class="bg-yellow-400 h-full rounded-full" style="width: ${dietPlan.dinner.carbo}%"></div></div></div>
+                <div>단백질: <div class="w-full bg-slate-700 h-1 rounded-full"><div class="bg-emerald-400 h-full rounded-full" style="width: ${dietPlan.dinner.protein}%"></div></div></div>
+                <div>지방: <div class="w-full bg-slate-700 h-1 rounded-full"><div class="bg-blue-400 h-full rounded-full" style="width: ${dietPlan.dinner.fat}%"></div></div></div>
+                <div>비타민: <div class="w-full bg-slate-700 h-1 rounded-full"><div class="bg-purple-400 h-full rounded-full" style="width: ${dietPlan.dinner.vitamin}%"></div></div></div>
+              </div>
+            </div>
+          </div>
+        `;
+
+        actionBox.innerHTML = `
+          <div class="p-3.5 bg-yellow-400/10 border-2 border-yellow-400 rounded-xl space-y-2.5 font-sans text-xs">
+            <div class="text-[11px] text-yellow-400 font-extrabold flex items-center gap-1">
+              <i data-lucide="shield-alert" class="w-4 h-4"></i> AI 윤리 3단계: 사람의 최종 수동 동의 요청
+            </div>
+            <p class="text-[10px] text-slate-300 leading-relaxed">
+              AI가 가정의 동의 없이 가상 카드 결제나 예약을 제멋대로 결정하지 않도록 차단 중입니다. 
+              내용을 확인하고 사람이 수동으로 승인해 주세요.
+            </p>
+            <button type="button" onclick="confirmDiet()" class="w-full bg-yellow-400 hover:bg-yellow-500 text-slate-950 font-black py-2.5 px-3 rounded-xl transition-all cursor-pointer">
+              🙋‍♂️ 예, 이 식단으로 최종 확정 및 저장합니다!
+            </button>
+          </div>
+        `;
+        actionBox.classList.remove('hidden');
+        lucide.createIcons();
+      }, 800);
+    }
+
+    // Register Waitlist when out of stock (Transparency demonstration)
+    function registerWaitlist(foodKey) {
+      const food = FOODS_DB[foodKey];
+      state.waitlisted = true;
+      state.isDietConfirmed = false;
+      
+      const outputBox = document.getElementById('ai-monitor-output');
+      const actionBox = document.getElementById('ai-monitor-action');
+      
+      outputBox.innerHTML = `
+        <p class="text-blue-400 font-bold">&gt; [WAITLIST_REGISTERED] 대기 접수 완료</p>
+        <p class="text-slate-400">&bull; 신청 별명: ${state.nickname}</p>
+        
+        <div class="p-3.5 bg-emerald-950/40 border border-emerald-500/30 rounded-xl font-sans mt-3">
+          <h4 class="font-bold text-emerald-400">📝 정직한 대기 등록에 참여 완료!</h4>
+          <p class="text-[11px] text-slate-300 mt-1 leading-relaxed">
+            "${food ? food.name : '해당 메뉴'}"에 대한 대기 열람 명부에 1번째로 등록되었습니다. 재고 보충 즉시, 투명한 규칙에 맞추어 알려드리겠습니다!
+          </p>
+        </div>
+      `;
+      actionBox.classList.add('hidden');
+      updateProgress();
+    }
+
+    // Confirm Diet (Human-in-the-loop validation success)
+    function confirmDiet() {
+      const bFood = FOODS_DB[state.selectedBreakfastFood];
+      const lFood = FOODS_DB[state.selectedLunchFood];
+      const dFood = FOODS_DB[state.selectedDinnerFood];
+      
+      // Deduct stock
+      if (bFood && bFood.portionsLeft > 0) bFood.portionsLeft--;
+      if (lFood && lFood.portionsLeft > 0) lFood.portionsLeft--;
+      if (dFood && dFood.portionsLeft > 0) dFood.portionsLeft--;
+      
+      state.isDietConfirmed = true;
+      renderFoodSelectionGrid();
+      
+      const outputBox = document.getElementById('ai-monitor-output');
+      const actionBox = document.getElementById('ai-monitor-action');
+      
+      outputBox.innerHTML = `
+        <p class="text-emerald-400 font-bold">&gt; [DECISION_APPROVED] 인간 최종 승인 완료</p>
+        <p class="text-slate-400">&bull; 승인 주체: 가정 별명 [${state.nickname}]님</p>
+        
+        <div class="p-3.5 bg-emerald-900/30 border border-emerald-400/40 rounded-xl font-sans mt-3 space-y-2">
+          <h4 class="font-extrabold text-emerald-400 flex items-center gap-1.5 text-xs">
+            🎉 최종 식단 및 가맹점 매칭 성공!
+          </h4>
+          <p class="text-[11px] text-slate-200 leading-relaxed">
+            별명 "${state.nickname}" 가구의 아침, 점심, 저녁 하루 영양이 완전히 조율되어 전송되었습니다. 
+            개인정보 보호 수칙에 완벽히 부합합니다!
+          </p>
+          <button type="button" onclick="switchTab(2)" class="w-full bg-emerald-500 hover:bg-emerald-600 text-white font-bold py-2 px-3 rounded-lg text-[10px] transition-all cursor-pointer">
+            🛵 3단계 배달 식당에서 스마트폰 주문 확인하기
+          </button>
+        </div>
+      `;
+      actionBox.classList.add('hidden');
+      
+      const stamp = document.getElementById('diet-stamp-container');
+      stamp.classList.remove('hidden');
+      
+      updateLiveEthicsMonitor('human', true, '사람 수동 승인 수행 완료 ✔️');
+      updateProgress();
+    }
+
+    // Reset Diet Selection form
+    function resetDietForm() {
+      state.nickname = '';
+      state.selectedBreakfastFood = 'cereal';
+      state.selectedLunchFood = 'pork_soup';
+      state.selectedDinnerFood = 'samgyeopsal';
+      state.currentMealConfigTab = 'breakfast';
+      state.isDietRecommended = false;
+      state.isDietConfirmed = false;
+      state.recommendedDiet = null;
+      state.waitlisted = false;
+      state.familySize = 1;
+      
+      document.getElementById('nickname-input').value = '';
+      document.getElementById('privacy-warning').classList.add('hidden');
+      document.getElementById('diet-stamp-container').classList.add('hidden');
+      
+      const buttons = document.querySelectorAll('.hsize-btn');
+      buttons.forEach((btn, idx) => {
+        if (idx === 0) {
+          btn.className = 'hsize-btn text-xs py-2.5 rounded-xl font-bold border transition-all bg-yellow-400 border-yellow-400 text-yellow-950';
+        } else {
+          btn.className = 'hsize-btn text-xs py-2.5 rounded-xl font-bold border transition-all bg-white border-slate-200 text-slate-700';
+        }
+      });
+
+      const outputBox = document.getElementById('ai-monitor-output');
+      outputBox.innerHTML = `
+        <div class="text-slate-500 italic py-16 text-center font-sans">
+          왼쪽 양식을 안전하게 채우고 추천을 실행하면, AI 에이전트가 설계한 가이드라인에 따른 식단 분석 및 영양 밸런스 결과가 여기에 출력됩니다.
+        </div>
+      `;
+      document.getElementById('ai-monitor-action').classList.add('hidden');
+      
+      const nickMonitor = document.getElementById('status-nickname');
+      nickMonitor.innerText = '⚠️ 별명 미설정 (2단계)';
+      
+      updateLiveEthicsMonitor('privacy', false, '별명 규칙 대기 중');
+      updateLiveEthicsMonitor('transparency', false, '품절 시 정직 알림 대기');
+      updateLiveEthicsMonitor('human', false, '최종 확인 장치 대기');
+      
+      switchMealConfigTab('breakfast');
+      updateMealSummaryUI();
+      renderFoodSelectionGrid();
+      validateRecommendButton();
+      updateProgress();
+    }
+
+
+    // ==================== SCREEN 3: DELIVERY CODE ====================
+    // Renders Screen 3 Delivery Hub view dynamically
+    function renderDeliveryHub() {
+      const parent = document.getElementById('delivery-linkage-status');
+      const sandboxList = document.getElementById('sandbox-delivery-list');
+      
+      // Clear
+      sandboxList.innerHTML = '';
+
+      // 1. Linkage status
+      if (state.isDietConfirmed && state.recommendedDiet) {
+        const bKey = state.selectedBreakfastFood;
+        const lKey = state.selectedLunchFood;
+        const dKey = state.selectedDinnerFood;
+        const bFood = FOODS_DB[bKey];
+        const lFood = FOODS_DB[lKey];
+        const dFood = FOODS_DB[dKey];
+
+        parent.innerHTML = `
+          <div class="bg-yellow-50/50 p-4 rounded-xl border border-yellow-200">
+            <span class="text-xs font-bold text-yellow-900 bg-yellow-100 px-2.5 py-0.5 rounded-full block w-max animate-pulse">연동 활성화 완료</span>
+            <h4 class="font-extrabold text-yellow-950 text-sm mt-2">
+              "${state.nickname}" 가구의 하루 안심 식단표
+            </h4>
+            <div class="text-[11px] text-slate-600 mt-2.5 leading-relaxed space-y-1.5 border-t border-yellow-200/50 pt-2">
+              <p class="flex justify-between">
+                <span>🌅 <strong>아침:</strong> ${bFood.emoji} ${bFood.name}</span>
+                <span class="text-[10px] text-slate-400">(${bFood.app})</span>
+              </p>
+              <p class="flex justify-between">
+                <span>☀️ <strong>점심:</strong> ${lFood.emoji} ${lFood.name}</span>
+                <span class="text-[10px] text-slate-400">(${lFood.app})</span>
+              </p>
+              <p class="flex justify-between">
+                <span>🌙 <strong>저녁:</strong> ${dFood.emoji} ${dFood.name}</span>
+                <span class="text-[10px] text-slate-400">(${dFood.app})</span>
+              </p>
+            </div>
+            <button onclick="loadPhoneApp()" class="w-full mt-3.5 bg-yellow-400 hover:bg-yellow-500 text-yellow-950 font-black py-2 rounded-lg text-xs cursor-pointer transition-colors shadow-2xs">
+              스마트폰 모의 화면에 실시간 연동하기 ▶
+            </button>
+          </div>
+        `;
+        // Load default matching app in the phone showing all 3 meals
+        loadPhoneApp();
+      } else {
+        parent.innerHTML = `
+          <div class="bg-yellow-50/20 p-4 rounded-xl border border-dashed border-yellow-200 text-center space-y-2">
+            <p class="text-xs text-yellow-950 font-bold">🔔 아직 확정된 하루 식단이 없어요!</p>
+            <p class="text-[10px] text-slate-400 leading-relaxed">
+              2단계 '식단 추천 및 예약' 탭에서 별명을 적고 최종 식단을 저장해야 자동 매칭 연동이 가동됩니다.
+            </p>
+            <button onclick="switchTab(1)" class="bg-yellow-400 hover:bg-yellow-500 text-yellow-950 font-bold px-3 py-1.5 rounded-lg text-[10px] cursor-pointer transition-colors">
+              식단 짜러 가기
+            </button>
+          </div>
+        `;
+        // Load default fallback on phone screen (defaults to showing 3 selected meals anyway)
+        loadPhoneApp();
+      }
+
+      // 2. Render Sandbox Delivery app selectors
+      Object.keys(FOODS_DB).forEach(key => {
+        const item = FOODS_DB[key];
+        sandboxList.insertAdjacentHTML('beforeend', `
+          <button type="button" onclick="loadPhoneApp('${key}')" class="text-left p-2 rounded-lg border text-[11px] transition-all bg-slate-50 hover:bg-yellow-50 border-slate-200 text-slate-700 flex items-center gap-1.5 cursor-pointer">
+            <span class="text-lg shrink-0">${item.emoji}</span>
+            <span class="truncate font-medium">${item.name} (${item.app})</span>
+          </button>
+        `);
+      });
+    }
+
+    // Helper to extract food DB key based on name
+    function getFoodKeyByName(name) {
+      if (name.includes('특선 세트')) {
+        // Strip out 특선 세트
+        const originalName = name.replace(' 특선 세트', '');
+        return Object.keys(FOODS_DB).find(k => FOODS_DB[k].name === originalName);
+      }
+      return Object.keys(FOODS_DB).find(k => FOODS_DB[k].name === name) || 'pork_soup';
+    }
+
+    // Load custom delivery app inside the Smartphone mockup UI
+    function loadPhoneApp(foodKey) {
+      const phoneContent = document.getElementById('phone-app-content');
+      const buyerName = state.nickname ? state.nickname : '수호대학생';
+      
+      state.orderStep = 'details';
+
+      if (foodKey) {
+        // Sandbox mode - show single app preview
+        const item = FOODS_DB[foodKey];
+        phoneContent.innerHTML = `
+          <!-- App Header (Branded) -->
+          <div class="px-4 py-2.5 text-white flex items-center justify-between shadow-xs shrink-0" style="background-color: ${item.color}">
+            <div class="flex items-center gap-1.5">
+              <span class="text-xl">${item.emoji}</span>
+              <div class="text-left">
+                <h4 class="font-extrabold text-xs leading-none tracking-tight">${item.app}</h4>
+                <p class="text-[8px] opacity-80 leading-none mt-1">안심 영양 대행 연동망</p>
+              </div>
+            </div>
+            <span class="text-[8px] bg-white/20 px-1.5 py-0.5 rounded border border-white/30 font-bold select-none">
+              안전 암호화
+            </span>
+          </div>
+
+          <!-- Top Quick Link to 3-Meal view -->
+          <div class="bg-yellow-50 border-b border-yellow-100 p-2 text-center text-[10px] text-yellow-900 font-extrabold flex items-center justify-center gap-1 cursor-pointer hover:bg-yellow-100 transition-colors shrink-0" onclick="loadPhoneApp()">
+            ✨ 내가 선택한 아침·점심·저녁 3끼 일괄 화면 보기 <i data-lucide="arrow-right" class="w-3 h-3"></i>
+          </div>
+
+          <!-- App Main Content Area -->
+          <div class="flex-1 p-3 bg-slate-50 overflow-y-auto space-y-3" id="phone-scroll-body">
+            <!-- Store detail card -->
+            <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-3xs text-left">
+              <span class="text-[8px] text-yellow-600 font-bold block tracking-wider">추천 연동 제휴점</span>
+              <h5 class="font-extrabold text-slate-800 text-[12px] leading-tight mt-0.5">${item.store}</h5>
+              <div class="flex items-center gap-1.5 text-[9px] text-slate-400 mt-1">
+                <span>⭐ 4.9 (리뷰 우수)</span>
+                <span>&bull;</span>
+                <span class="text-emerald-600 font-bold">배달팁 안심 무료</span>
+              </div>
+            </div>
+
+            <!-- Product card -->
+            <div class="bg-white p-3 rounded-xl border border-slate-100 shadow-3xs text-left space-y-2">
+              <div class="flex justify-between items-start gap-2">
+                <div class="min-w-0 flex-1">
+                  <span class="text-[8px] text-slate-400 font-bold bg-slate-100 px-1.5 py-0.5 rounded">매칭 식단</span>
+                  <h6 class="font-extrabold text-slate-800 text-xs mt-1.5">${item.name} 세트 (${state.familySize}인분 기준)</h6>
+                  <p class="text-[10px] text-slate-400 leading-relaxed mt-1">${item.desc}</p>
+                </div>
+                <span class="text-3xl p-1 bg-yellow-50 rounded-lg shrink-0 select-none">${item.emoji}</span>
+              </div>
+              
+              <div class="border-t border-slate-100 pt-2 flex justify-between items-baseline">
+                <span class="text-[10px] font-bold text-slate-500">모의 결제 금액</span>
+                <span class="font-black text-amber-600 text-xs" style="color: ${item.color}">${item.price}</span>
+              </div>
+            </div>
+
+            <!-- Privacy Secure Dashboard -->
+            <div class="bg-emerald-50 border border-emerald-100 p-3 rounded-xl text-left space-y-2">
+              <div class="flex items-center gap-1 text-emerald-800 font-black text-[10px]">
+                <i data-lucide="shield-check" class="w-3.5 h-3.5 text-emerald-600"></i>
+                <span>AI 윤리 1번: 개인정보 유출 완전 차단</span>
+              </div>
+              <div class="text-[9px] text-emerald-900/80 space-y-1.5 leading-relaxed font-semibold">
+                <p>&bull; <strong>배달 수령 별명:</strong> ${buyerName}</p>
+                <p>&bull; <strong>전화번호 암호화:</strong> <span class="bg-emerald-100 px-1 rounded font-bold font-mono text-emerald-700">0507-안심번호-완료</span></p>
+                <p>&bull; <strong>상세 주소 마스킹:</strong> <span class="bg-emerald-100 px-1 rounded font-bold text-emerald-700">가상 근방 보관 수령지 연동</span></p>
+              </div>
+            </div>
+
+            <!-- Order Action Button -->
+            <button type="button" onclick="executeSimulateOrder('${foodKey}')" class="w-full text-white font-extrabold py-3 px-4 rounded-xl text-xs transition-transform hover:scale-[1.01] active:scale-95 cursor-pointer shadow-sm" style="background-color: ${item.color}">
+              🛵 위성 안심 배달 주문하기
+            </button>
+          </div>
+        `;
+      } else {
+        // Render 3-Meal Unified Order Screen!
+        const bKey = state.selectedBreakfastFood;
+        const lKey = state.selectedLunchFood;
+        const dKey = state.selectedDinnerFood;
+
+        const bFood = FOODS_DB[bKey];
+        const lFood = FOODS_DB[lKey];
+        const dFood = FOODS_DB[dKey];
+
+        // Helper to parse price
+        const parsePrice = (priceStr) => {
+          return parseInt(priceStr.replace(/[^0-9]/g, '')) || 0;
+        };
+
+        const bPriceVal = parsePrice(bFood.price) * state.familySize;
+        const lPriceVal = parsePrice(lFood.price) * state.familySize;
+        const dPriceVal = parsePrice(dFood.price) * state.familySize;
+        const totalPrice = (bPriceVal + lPriceVal + dPriceVal).toLocaleString() + '원';
+
+        phoneContent.innerHTML = `
+          <!-- App Header (Unified) -->
+          <div class="px-4 py-2.5 text-white flex items-center justify-between shadow-xs shrink-0 bg-gradient-to-r from-yellow-500 via-amber-500 to-orange-500">
+            <div class="flex items-center gap-1.5">
+              <span class="text-xl">🍱</span>
+              <div class="text-left">
+                <h4 class="font-extrabold text-[11px] leading-none tracking-tight">하루 3끼 안심 영양 연동망</h4>
+                <p class="text-[8px] opacity-90 leading-none mt-1">아침·점심·저녁 일괄 매칭 완료</p>
+              </div>
+            </div>
+            <span class="text-[8px] bg-white/20 px-1.5 py-0.5 rounded border border-white/30 font-bold select-none">
+              통합 암호화
+            </span>
+          </div>
+
+          <!-- App Main Content Area -->
+          <div class="flex-1 p-3 bg-slate-50 overflow-y-auto space-y-3" id="phone-scroll-body">
+            
+            <!-- Headline -->
+            <div class="text-left px-1 flex justify-between items-center">
+              <div>
+                <h5 class="font-black text-slate-800 text-[11px]">선택된 하루 영양 식단표</h5>
+                <p class="text-[8px] text-slate-400">가정 동의 하에 가상 연동된 리스트</p>
+              </div>
+              <span class="text-[9px] bg-yellow-100 text-yellow-800 font-extrabold px-1.5 py-0.5 rounded">${state.familySize}인분 기준</span>
+            </div>
+
+            <!-- 1. Breakfast Card -->
+            <div class="bg-white p-2.5 rounded-xl border border-slate-100 shadow-4xs text-left space-y-1 relative">
+              <div class="flex justify-between items-center">
+                <span class="text-[8px] text-blue-600 font-extrabold bg-blue-50 px-1.5 py-0.5 rounded">🌅 아침 식사</span>
+                <span class="text-[8px] text-slate-400 font-bold">${bFood.app}</span>
+              </div>
+              <div class="flex justify-between items-start gap-1">
+                <div class="min-w-0 flex-1">
+                  <h6 class="font-extrabold text-slate-800 text-[11px] truncate">${bFood.emoji} ${bFood.name}</h6>
+                  <p class="text-[8px] text-slate-400 truncate">${bFood.store}</p>
+                </div>
+                <span class="font-bold text-slate-700 text-[10px] shrink-0">${bFood.price}</span>
+              </div>
+            </div>
+
+            <!-- 2. Lunch Card -->
+            <div class="bg-white p-2.5 rounded-xl border border-slate-100 shadow-4xs text-left space-y-1 relative">
+              <div class="flex justify-between items-center">
+                <span class="text-[8px] text-emerald-600 font-extrabold bg-emerald-50 px-1.5 py-0.5 rounded">☀️ 점심 식사</span>
+                <span class="text-[8px] text-slate-400 font-bold">${lFood.app}</span>
+              </div>
+              <div class="flex justify-between items-start gap-1">
+                <div class="min-w-0 flex-1">
+                  <h6 class="font-extrabold text-slate-800 text-[11px] truncate">${lFood.emoji} ${lFood.name}</h6>
+                  <p class="text-[8px] text-slate-400 truncate">${lFood.store}</p>
+                </div>
+                <span class="font-bold text-slate-700 text-[10px] shrink-0">${lFood.price}</span>
+              </div>
+            </div>
+
+            <!-- 3. Dinner Card -->
+            <div class="bg-white p-2.5 rounded-xl border border-slate-100 shadow-4xs text-left space-y-1 relative">
+              <div class="flex justify-between items-center">
+                <span class="text-[8px] text-purple-600 font-extrabold bg-purple-50 px-1.5 py-0.5 rounded">🌙 저녁 식사</span>
+                <span class="text-[8px] text-slate-400 font-bold">${dFood.app}</span>
+              </div>
+              <div class="flex justify-between items-start gap-1">
+                <div class="min-w-0 flex-1">
+                  <h6 class="font-extrabold text-slate-800 text-[11px] truncate">${dFood.emoji} ${dFood.name}</h6>
+                  <p class="text-[8px] text-slate-400 truncate">${dFood.store}</p>
+                </div>
+                <span class="font-bold text-slate-700 text-[10px] shrink-0">${dFood.price}</span>
+              </div>
+            </div>
+
+            <!-- Total Price section -->
+            <div class="bg-white p-2.5 rounded-xl border border-slate-100 shadow-4xs text-left flex justify-between items-baseline">
+              <span class="text-[9px] font-black text-slate-700">모의 결제 합계 (배달팁 0원)</span>
+              <span class="font-black text-amber-600 text-xs">${totalPrice}</span>
+            </div>
+
+            <!-- Privacy Secure Dashboard -->
+            <div class="bg-emerald-50 border border-emerald-100 p-2.5 rounded-xl text-left space-y-1.5">
+              <div class="flex items-center gap-1 text-emerald-800 font-black text-[9px]">
+                <i data-lucide="shield-check" class="w-3 h-3 text-emerald-600"></i>
+                <span>AI 윤리 1번: 개인정보 유출 완전 차단</span>
+              </div>
+              <div class="text-[8px] text-emerald-950 space-y-1 leading-relaxed font-bold">
+                <p>&bull; 수령 별명: <span class="text-slate-700">${buyerName}</span></p>
+                <p>&bull; 전화번호: <span class="bg-emerald-100 px-1 rounded text-emerald-700">0507-안심번호-완료</span></p>
+                <p>&bull; 상세 주소: <span class="bg-emerald-100 px-1 rounded text-emerald-700">가상 인근 보관 수령지 지정</span></p>
+              </div>
+            </div>
+
+            <!-- Order Action Button -->
+            <button type="button" onclick="executeSimulateOrder()" class="w-full text-white font-extrabold py-3 px-4 rounded-xl text-xs transition-transform hover:scale-[1.01] active:scale-95 cursor-pointer shadow-sm bg-gradient-to-r from-amber-500 to-orange-500">
+              🛵 3끼 일괄 안심 배달 주문하기
+            </button>
+          </div>
+        `;
+      }
+      lucide.createIcons();
+    }
+
+    // Executes the mock order transaction (Human confirmation triggers)
+    function executeSimulateOrder(foodKey) {
+      const item = foodKey ? FOODS_DB[foodKey] : null;
+      const scrollBody = document.getElementById('phone-scroll-body');
+      
+      state.orderStep = 'ordering';
+      scrollBody.innerHTML = `
+        <div class="text-center py-20 space-y-4">
+          <div class="inline-block w-10 h-10 border-4 border-slate-700 border-t-yellow-400 rounded-full animate-spin"></div>
+          <div class="space-y-1.5">
+            <h5 class="font-black text-slate-800 text-xs">안심 트랜잭션 전송 중...</h5>
+            <p class="text-[9px] text-slate-400 leading-relaxed max-w-[180px] mx-auto">
+              이름과 주소를 안전하게 숨긴 암호화 패킷을 배달 가맹점으로 실시간 전송 중입니다.
+            </p>
+          </div>
+        </div>
+      `;
+
+      // Success screen after 1.5s
+      setTimeout(() => {
+        state.orderStep = 'completed';
+        
+        let orderDetailsHTML = '';
+        if (item) {
+          orderDetailsHTML = `
+            <div class="flex justify-between border-b border-slate-50 pb-1 font-bold text-slate-800">
+              <span>안심가맹점</span>
+              <span>${item.store}</span>
+            </div>
+            <div class="flex justify-between">
+              <span>배달 음식</span>
+              <span>${item.name} 세트</span>
+            </div>
+            <div class="flex justify-between">
+              <span>배달 앱</span>
+              <span>${item.app}</span>
+            </div>
+          `;
+        } else {
+          const bFood = FOODS_DB[state.selectedBreakfastFood];
+          const lFood = FOODS_DB[state.selectedLunchFood];
+          const dFood = FOODS_DB[state.selectedDinnerFood];
+          orderDetailsHTML = `
+            <div class="border-b border-slate-100 pb-1.5 font-extrabold text-slate-800 text-center text-[10px]">
+              🍱 하루 3끼 통합 주문 명세서
+            </div>
+            <div class="space-y-1 pt-1.5">
+              <div class="flex justify-between text-slate-500">
+                <span>🌅 아침</span>
+                <span class="text-slate-800 font-extrabold">${bFood.emoji} ${bFood.name}</span>
+              </div>
+              <div class="flex justify-between text-[8px] text-slate-400 -mt-1 pl-2">
+                <span>└ ${bFood.store}</span>
+                <span>(${bFood.app})</span>
+              </div>
+              
+              <div class="flex justify-between text-slate-500 mt-1">
+                <span>☀️ 점심</span>
+                <span class="text-slate-800 font-extrabold">${lFood.emoji} ${lFood.name}</span>
+              </div>
+              <div class="flex justify-between text-[8px] text-slate-400 -mt-1 pl-2">
+                <span>└ ${lFood.store}</span>
+                <span>(${lFood.app})</span>
+              </div>
+              
+              <div class="flex justify-between text-slate-500 mt-1">
+                <span>🌙 저녁</span>
+                <span class="text-slate-800 font-extrabold">${dFood.emoji} ${dFood.name}</span>
+              </div>
+              <div class="flex justify-between text-[8px] text-slate-400 -mt-1 pl-2">
+                <span>└ ${dFood.store}</span>
+                <span>(${dFood.app})</span>
+              </div>
+            </div>
+          `;
+        }
+
+        scrollBody.innerHTML = `
+          <div class="text-center py-10 space-y-4">
+            <div class="w-14 h-14 bg-emerald-100 rounded-full flex items-center justify-center mx-auto border-2 border-emerald-400 text-3xl">
+              🎉
+            </div>
+            <div class="space-y-1">
+              <h5 class="font-black text-emerald-800 text-xs">가상 안심 주문 성공!</h5>
+              <p class="text-[9px] text-slate-400">배달 예상: 30분 이내 라이더 안심 보관 완료</p>
+            </div>
+
+            <div class="bg-white p-3 rounded-xl border border-slate-100 text-left space-y-1.5 text-[9px] text-slate-600 font-semibold">
+              ${orderDetailsHTML}
+              <div class="flex justify-between pt-1 border-t border-slate-50">
+                <span>수령인 별명</span>
+                <span>${state.nickname ? state.nickname : '수호대생'}</span>
+              </div>
+              <div class="flex justify-between">
+                <span>개인정보 누출</span>
+                <span class="text-emerald-600 font-bold">0건 (철통 보안 완료!)</span>
+              </div>
+            </div>
+
+            <button type="button" onclick="loadPhoneApp(${foodKey ? `'${foodKey}'` : ''})" class="bg-slate-100 hover:bg-slate-200 text-slate-700 font-extrabold px-3 py-1.5 rounded-lg text-[10px] transition-all cursor-pointer">
+              다시 주문해 보기
+            </button>
+          </div>
+        `;
+        updateProgress();
+      }, 1500);
+    }
+
+
+    // ==================== SCREEN 4: PRESENTATION CODE ====================
+    // Slide Data Array
+    const SLIDES = [
+      {
+        title: "1. 기획 배경 및 웹앱 목적",
+        content: `
+          <div class="space-y-4 text-left font-sans text-xs">
+            <div class="bg-yellow-50 p-4 border border-yellow-100 rounded-xl space-y-2">
+              <h4 class="font-extrabold text-yellow-950 text-sm">💡 기획 계기: 왜 만들게 되었을까요?</h4>
+              <p class="text-slate-600 leading-relaxed text-[11px]">
+                매 끼니 결정을 어려워하는 맞벌이 가정이나 1인 청소년 가구들의 식사 준비 불편함을 단번에 해결하기 위해 기획되었습니다. 
+                영양이 한쪽으로 쏠리지 않도록 <strong>탄수화물, 단백질, 지방, 비타민 밸런스를 고려한 하루 세 끼 맞춤 식단을 AI로 간편하게 추천</strong>해 줍니다.
+              </p>
+            </div>
+            <div class="bg-yellow-50 p-4 border border-yellow-100 rounded-xl space-y-2">
+              <h4 class="font-extrabold text-yellow-950 text-sm">🎯 핵심 목표: 앱이 추구하는 세련된 해결책</h4>
+              <p class="text-slate-600 leading-relaxed text-[11px]">
+                단순히 편리하게 배달을 연동해 주는 것뿐만 아니라, 12~14세 학생들이 기술을 접하면서 
+                <strong>개인정보 탈취, 이중 이익 추구, 인공지능 오작동 결제 등 윤리적 위협</strong>을 깨닫고, 
+                이러한 위협을 사전에 꽁꽁 묶는 "안심 윤리 필터 시스템"을 직접 테스트하여 캠프의 배움을 완성합니다.
+              </p>
+            </div>
+          </div>
+        `
+      },
+      {
+        title: "2. 에이전트 영양소 추천 알고리즘",
+        content: `
+          <div class="space-y-4 text-left font-sans text-xs">
+            <p class="text-slate-600 leading-relaxed text-[11px]">
+              AI 에이전트가 추천하는 식단 설계 로직은 성장기 청소년 및 성인의 일일 권장 영양 요구량(KFDA 표준)을 토대로 지능적으로 자동 밸런싱됩니다.
+            </p>
+            <div class="grid grid-cols-2 gap-3">
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <span class="font-extrabold text-yellow-950 block text-xs">🟢 탄단지 황금비 맞춤</span>
+                <p class="text-[10px] text-slate-500 mt-1 leading-relaxed">
+                  탄수화물 55%, 단백질 25%, 지방 20%의 열량 밸런스를 자동으로 점검하고 비타민과 무기질 야채 반찬을 세 삼 끼 골고루 배합합니다.
+                </p>
+              </div>
+              <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+                <span class="font-extrabold text-yellow-950 block text-xs">🕒 시간대별 칼로리 분배</span>
+                <p class="text-[10px] text-slate-500 mt-1 leading-relaxed">
+                  바쁜 아침은 가볍고 식이섬유가 높은 과일/시리얼로, 점심은 소화성이 뛰어난 정통 한식, 저녁은 단백질을 보강하는 든든 삼겹살/초밥 세트로 입체 분배합니다.
+                </p>
+              </div>
+            </div>
+            <div class="bg-yellow-50 p-3 border border-yellow-100 rounded-xl text-[10px] text-yellow-900 leading-relaxed">
+              <strong>💡 균형 설계 증명:</strong> 사용자가 평소 즐겨 먹는 음식을 기입하면, 그와 완벽하게 페어링되는 하루 필수 영양 영양소를 AI가 채워 가구가 건강한 상태를 유지하도록 제안해요.
+            </div>
+          </div>
+        `
+      },
+      {
+        title: "3. 철저한 AI 윤리 3가지 안심 장치",
+        content: `
+          <div class="space-y-3 text-left font-sans text-xs">
+            <div class="flex items-start gap-3 bg-white p-3 rounded-xl border border-yellow-100">
+              <span class="text-xl shrink-0">🔒</span>
+              <div>
+                <strong class="text-yellow-950 text-xs">1번 장치: 개인정보 원천 배제 (Privacy Protection)</strong>
+                <p class="text-[10px] text-slate-500 leading-relaxed mt-0.5">
+                  데이터베이스 유출 및 도용 사고를 근절하기 위해 실명, 주민번호(생년월일), 실제 집주소, 휴대전화 번호는 입력란에 단 1자도 기입하지 못하게 감지하여 완전 차단하고, 오직 무작위 '별명'만으로 동작해요.
+                </p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 bg-white p-3 rounded-xl border border-yellow-100">
+              <span class="text-xl shrink-0">📢</span>
+              <div>
+                <strong class="text-yellow-950 text-xs">2번 장치: 재고 및 품절 정직성 (Transparency & Honesty)</strong>
+                <p class="text-[10px] text-slate-500 leading-relaxed mt-0.5">
+                  이윤 추구를 위해 잔량이 다 떨어진 품절 메뉴를 예약이 완료된 것처럼 속이는 어두운 속임수(다크 패턴)를 거부합니다. 정직한 알림 절차를 내장하고, 공정하게 대기 명단 등록을 유도해요.
+                </p>
+              </div>
+            </div>
+            <div class="flex items-start gap-3 bg-white p-3 rounded-xl border border-yellow-100">
+              <span class="text-xl shrink-0">🙋‍♂️</span>
+              <div>
+                <strong class="text-yellow-950 text-xs">3번 장치: 사람 확인 수동 예약핀 (Human-in-the-Loop)</strong>
+                <p class="text-[10px] text-slate-500 leading-relaxed mt-0.5">
+                  인공지능 비서가 독단적으로 가정의 은행 계좌나 신용카드로 승인 결제를 마치지 않도록, 식단 검증이 성공적으로 끝난 뒤 '최종 사람이 수동 확인하고 동의 버튼'을 눌러야만 원장에 기록되는 안심 안전핀입니다.
+                </p>
+              </div>
+            </div>
+          </div>
+        `
+      },
+      {
+        title: "4. 실시간 윤리 캠프 활동 통계 보고서",
+        content: `
+          <div class="space-y-3 text-left font-sans text-xs" id="slide-report-card">
+            <!-- Render live report metrics -->
+          </div>
+        `
+      },
+      {
+        title: "5. 캠프 수료 소감 및 발표 대본",
+        content: `
+          <div class="space-y-4 text-left font-sans text-xs">
+            <div class="space-y-1">
+              <span class="font-bold text-yellow-900 block">✏️ 나의 인공지능 캠프 마무리 윤리 다짐 적기</span>
+              <textarea id="reflection-textbox" oninput="saveReflection(this.value)" placeholder="이곳에 캠프 소감이나 느낀 점을 자유롭게 적어보세요! (예: 편리한 기술보다 중요한 것은 사람의 안전과 존엄성이라는 것을 배웠습니다.)" class="w-full text-xs p-3 bg-yellow-50/30 border border-yellow-200 rounded-xl focus:outline-none focus:ring-1 focus:ring-yellow-400 text-yellow-950 font-medium h-20 resize-none"></textarea>
+            </div>
+            <div class="bg-yellow-50 p-3 border border-yellow-100 rounded-xl">
+              <span class="font-bold text-yellow-950 text-xs block">🗣️ 추천 발표 발표 대본 (Script):</span>
+              <p class="text-[10px] text-slate-600 mt-1 leading-relaxed italic">
+                "안녕하세요! 1모둠 발표자입니다. 저희가 만든 '누구나 쉽게 한 끼를 때우는 AI 에이전트'는 가족들의 영양소를 완벽히 채워줄 뿐만 아니라, 
+                실제 이름이나 주소 대신 별명을 사용하고, 사람 확인 승인 안전핀을 설계하여 해킹과 무단 결제로부터 가정을 안전하게 보호하는 윤리적인 도구입니다. 감사합니다!"
+              </p>
+            </div>
+          </div>
+        `
+      }
+    ];
+
+    // Render slide element
+    function renderSlide() {
+      const frame = document.getElementById('slide-frame');
+      const dots = document.getElementById('slide-dots');
+      const activeSlide = SLIDES[state.activeSlideIndex];
+
+      // Page updates
+      document.getElementById('current-slide-page').innerText = state.activeSlideIndex + 1;
+
+      // Dots update
+      dots.innerHTML = '';
+      SLIDES.forEach((_, idx) => {
+        const dotClass = idx === state.activeSlideIndex 
+          ? 'w-6 h-2 bg-yellow-500 rounded-full transition-all' 
+          : 'w-2 h-2 bg-slate-200 hover:bg-slate-300 rounded-full transition-all cursor-pointer';
+        dots.insertAdjacentHTML('beforeend', `<span onclick="goToSlide(${idx})" class="${dotClass}"></span>`);
+      });
+
+      // HTML compile for the slide
+      frame.innerHTML = `
+        <div>
+          <span class="text-[9px] bg-yellow-100 text-yellow-900 font-extrabold px-2.5 py-1 rounded">발표용 피치덱</span>
+          <h3 class="text-lg md:text-xl font-black text-yellow-950 mt-2">${activeSlide.title}</h3>
+        </div>
+        <div class="flex-1">
+          ${activeSlide.content}
+        </div>
+      `;
+
+      // Special action on report slide load
+      if (state.activeSlideIndex === 3) {
+        compileLiveReport();
+      }
+
+      // Sync textbox value if reflection slide
+      if (state.activeSlideIndex === 4) {
+        document.getElementById('reflection-textbox').value = state.studentReflection;
+      }
+      lucide.createIcons();
+    }
+
+    // Prev / Next slides
+    function prevSlide() {
+      if (state.activeSlideIndex > 0) {
+        state.activeSlideIndex--;
+        renderSlide();
+      }
+    }
+
+    function nextSlide() {
+      if (state.activeSlideIndex < SLIDES.length - 1) {
+        state.activeSlideIndex++;
+        renderSlide();
+      }
+    }
+
+    function goToSlide(index) {
+      state.activeSlideIndex = index;
+      renderSlide();
+    }
+
+    // Save reflection text
+    function saveReflection(val) {
+      state.studentReflection = val;
+    }
+
+    // Compiles live stats from current session into Presentation slide 4
+    function compileLiveReport() {
+      const container = document.getElementById('slide-report-card');
+      if (!container) return;
+
+      const testDeductedCount = state.privacyViolationCount;
+      const finalApprovedText = state.isDietConfirmed 
+        ? '<span class="text-emerald-600 font-black">✔️ 최종 수동 승인 이력 존재 (확정)</span>' 
+        : '<span class="text-amber-600 font-bold">⚠️ 현재 승인 대기 또는 미완료 상태</span>';
+
+      container.innerHTML = `
+        <p class="text-slate-600 leading-relaxed text-[11px] mb-2">
+          이번 캠프 세션에서 우리가 직접 실시간으로 에이전트를 조율하고 안전 규범을 위반해 테스트해 본 소중한 실습 성적 지표입니다.
+        </p>
+        <div class="grid grid-cols-2 gap-3 font-sans">
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+            <span class="text-slate-400 text-[9px] block uppercase font-bold">테스트에 사용한 가상 별명</span>
+            <span class="text-xs font-black text-yellow-950 mt-1 block">
+              ${state.nickname ? `👤 "${state.nickname}"` : '❌ 아직 입력 안 됨 (미완)'}
+            </span>
+          </div>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+            <span class="text-slate-400 text-[9px] block uppercase font-bold">감지된 개인정보 위반 시도</span>
+            <span class="text-xs font-black text-red-600 mt-1 block flex items-center gap-1">
+              🚨 ${testDeductedCount}회 감지 및 차단 성공
+            </span>
+          </div>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+            <span class="text-slate-400 text-[9px] block uppercase font-bold">재고 관리 정직성 상태</span>
+            <span class="text-xs font-black text-blue-700 mt-1 block">
+              ${state.waitlisted ? '📝 품절 대기 등록 성공' : '✔️ 정상 재고 정직 공시 완료'}
+            </span>
+          </div>
+          <div class="bg-slate-50 p-3 rounded-xl border border-slate-100">
+            <span class="text-slate-400 text-[9px] block uppercase font-bold">사람의 통제권 승인 상태</span>
+            <span class="text-xs font-black mt-1 block">
+              ${finalApprovedText}
+            </span>
+          </div>
+        </div>
+        <p class="text-[10px] text-slate-400 mt-2 leading-relaxed">
+          &bull; <strong>안전성 평가 결과:</strong> AI 윤리 모니터 연동 결과 개인정보 유출을 방지하고 사람에게 통제 승인을 이관하는 등, 청소년 안심 가이드라인을 100% 모범적으로 수립 완료했습니다.
+        </p>
+      `;
+    }
+
+    // Global Progress Update
+    function updateProgress() {
+      let score = 25; // Base is 25% (Home View read)
+      let desc = '1단계 홈 화면 탐색 완료! 2단계 식단 추천에서 가짜 별명을 짓고 하루 식단을 예약받으세요.';
+
+      if (state.nickname.trim().length > 0 && !checkPrivacyViolation(state.nickname)) {
+        score += 15;
+        desc = '가상 별명 보호 테스트 통과! 좋아하는 음식을 골라 식단을 추천받으세요.';
+      }
+      if (state.isDietRecommended) {
+        score += 15;
+        desc = 'AI 에이전트 식단 추천 완료! 사람이 최종 내용이 맞는지 검토하고 예약 승인을 누르세요.';
+      }
+      if (state.isDietConfirmed) {
+        score += 20;
+        desc = '사람 확인(Human-in-the-loop) 승인 성공! 3단계 배달 주문 창에서 안심 주소 가상화 배달을 시험해 보세요.';
+      }
+      if (state.orderStep === 'completed') {
+        score += 25;
+        desc = '축하합니다! 모의 배달 안심 주문까지 마쳤습니다. 4단계 설명 발표회에서 멋지게 대본을 인쇄해 보세요!';
+      }
+
+      // Bound
+      score = Math.min(100, score);
+
+      // DOM Bind
+      document.getElementById('progress-percent').innerText = score;
+      document.getElementById('progress-bar').style.width = `${score}%`;
+      document.getElementById('progress-desc').innerText = desc;
+    }
+
+
+    // ==================== RESET FUNCTION ====================
+    function confirmResetAll() {
+      const modal = document.getElementById('reset-confirm-modal');
+      modal.classList.remove('hidden');
+    }
+
+    function closeResetModal() {
+      const modal = document.getElementById('reset-confirm-modal');
+      modal.classList.add('hidden');
+    }
+
+    function executeResetAll() {
+      // Restore initial vanilla state
+      state.activeTab = 0;
+      state.nickname = '';
+      state.familySize = 1;
+      state.selectedBreakfastFood = 'cereal';
+      state.selectedLunchFood = 'pork_soup';
+      state.selectedDinnerFood = 'samgyeopsal';
+      state.currentMealConfigTab = 'breakfast';
+      state.privacyViolationCount = 0;
+      state.isDietRecommended = false;
+      state.isDietConfirmed = false;
+      state.recommendedDiet = null;
+      state.waitlisted = false;
+      state.orderStep = 'details';
+      state.activeSlideIndex = 0;
+      state.studentReflection = '';
+
+      // Reset DOM Inputs
+      document.getElementById('nickname-input').value = '';
+      document.getElementById('privacy-warning').classList.add('hidden');
+      document.getElementById('diet-stamp-container').classList.add('hidden');
+      closeResetModal();
+
+      // Reset FOODS_DB residual stocks
+      Object.keys(FOODS_DB).forEach(k => {
+        FOODS_DB[k].portionsLeft = FOODS_DB[k].maxPortions;
+      });
+
+      // Render Home and fresh UI
+      switchTab(0);
+      switchMealConfigTab('breakfast');
+      updateMealSummaryUI();
+      renderFoodSelectionGrid();
+      validateRecommendButton();
+    }
+  </script>
+</body>
+</html>
